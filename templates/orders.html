@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+
+{% block title %}: My Orders{% endblock %}
+
+{% block main %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Your Orders</h1>
+        
+        {% if orders %}
+            <div class="row">
+                {% for order in orders %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm" style="height: 200px;"> <!-- Set the fixed height here -->
+                        <div class="row g-0" style="height: 100%;"> <!-- Ensure the row fills the card -->
+                        
+                            <!-- Product Details Column -->
+                            <div class="col-md-8">
+                                <div class="card-body" style="height: 100%;"> <!-- Make sure the body fills the column -->
+                                    <h5 class="card-title">
+                                        {{ order.product_name }} - <span style="font-size: 1rem; font-weight: normal;">${{ order.price }}</span>
+                                    </h5>
+                                    <p class="card-text">
+                                        <strong>Amount Purchased:</strong> {{ order.amount }}<br>
+                                        <strong>Purchase Date:</strong> {{ order.time }}<br>
+                                        <strong>Shipping Address:</strong> {{ order.shipping_address }}<br>
+                                        <strong>Credit Card:</strong> **** **** **** {{ order.credit_last_four }}<br>
+                                    </p>
+                                </div>
+                            </div>
+                
+                            <!-- Product Image Column -->
+                            <div class="col-md-4" style="text-align: right;">
+                                <img src="{{ url_for('static', filename='products/' + order.product_image) }}" class="img-fluid" alt="{{ order.product_name }}" style="max-width: 100%; max-height: 150px; object-fit: contain; object-position: right;">
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <strong>No orders found.</strong> Start shopping to place your first order!
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,161 @@
+/*!
+* Start Bootstrap - Shop Homepage v5.0.6 (https://startbootstrap.com/template/shop-homepage)
+* Copyright 2013-2023 Start Bootstrap
+* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)
+*/
+// This file is intentionally blank
+// Use this file to add JavaScript to your project
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('registerForm');
+    
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirm_password').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                event.preventDefault(); // Prevent form submission
+            }
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('settingsForm');
+    
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            var password = document.getElementById('new_password').value;
+            var confirmPassword = document.getElementById('confirm_new_password').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                event.preventDefault(); // Prevent form submission
+            }
+        });
+    }
+});
+
+// scripts.js or your custom .js file
+
+function addToCart(productId) {
+    fetch('/add_to_cart_ajax', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 'product_id': productId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the cart count dynamically if the user is logged in
+            document.getElementById('cart-count').textContent = data.products_in_cart;
+        } else {
+            // Display a message if the user is not logged in
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// JavaScript function to update the cart quantity
+function updateCartQuantity(productId, change) {
+    // Get the input field for the product quantity
+    const quantityInput = document.getElementById('quantity-' + productId);
+    let newQuantity = parseInt(quantityInput.value) + change;
+
+    // Ensure the quantity doesn't go below 0
+    if (newQuantity < 0) {
+        newQuantity = 0;
+    }
+
+    // Update the input field with the new quantity
+    quantityInput.value = newQuantity;
+
+    // Send an AJAX request to update the cart on the server
+    fetch('/update_cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            'product_id': productId,
+            'new_quantity': newQuantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the cart count displayed on the page
+            document.getElementById('cart-count').textContent = data.products_in_cart;
+        } else {
+            alert('Failed to update cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Trigger update when clicking outside of the input box
+function updateCart(productId) {
+    const quantityInput = document.getElementById('quantity-' + productId);
+    const newQuantity = parseInt(quantityInput.value);
+    const maxStock = parseInt(quantityInput.max);
+
+    // Ensure the new quantity is not less than 0 and does not exceed max stock
+    if (newQuantity < 0) {
+        alert('Quantity cannot be less than 0. Update was discarded.');
+        quantityInput.value = 0;
+        return;
+    }
+
+    if (newQuantity > maxStock) {
+        alert(`Maximum stock available is ${maxStock}. Update was discarded.`);
+        quantityInput.value = maxStock;  // Set the input value to max stock
+        return;  // Prevent sending the request if it exceeds stock
+    }
+
+    fetch('/update_cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 'product_id': productId, 'new_quantity': newQuantity })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the cart icon count
+            document.getElementById('cart-count').textContent = data.products_in_cart;
+            quantityInput.setAttribute('data-original-quantity', newQuantity);
+        } else {
+            alert('Failed to update cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Trigger update when the Enter key is pressed
+function checkEnterKey(event, productId) {
+    if (event.key === 'Enter') {  
+        updateCart(productId);
+    }
+}
+
+function checkInputChange(productId, amountInCart) {
+    const quantityInput = document.getElementById('quantity-' + productId);
+    const originalQuantity = parseInt(quantityInput.getAttribute('data-original-quantity')); // Retrieve stored value
+    const currentQuantity = parseInt(quantityInput.value); // Current input value
+
+    if (currentQuantity !== originalQuantity) {
+        alert("Changes were not recorded, you have to click enter.");
+    }
+}
+

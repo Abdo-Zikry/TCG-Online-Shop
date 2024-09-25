@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block title %}: Cart{% endblock %}
+
+{% block main %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Shopping Cart</h1>
+        <div class="row">
+            {% for product in cart_products %}
+                <div class="col-lg-3 col-md-6 mb-4"> <!-- Updated to fit 4 cards on large screens and 2 on medium screens -->
+                    <div class="card h-100">
+                        <a href="{{ url_for('product_details', product=product.name) }}">
+                            <img class="card-img-top" src="{{url_for('static', filename='products/' + product.image_file_name)}}" alt="..." 
+                                style="width: 100%; height: 200px; object-fit: contain;"/>
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ product.name }}</h5>
+                            <p class="card-text text-center">{{ product.price }}$</p>
+                            <div class="button-group">
+                                <button class="btn btn-outline-dark me-2" onclick="updateCartQuantity('{{ product.id }}', -1)">-</button>
+                                <input type="number" id="quantity-{{ product.id }}" value="{{ product.amount_in_cart }}" 
+                                    min="0" max="{{ product.amount }}" class="form-control text-center no-spinners"
+                                    data-original-quantity="{{ product.amount_in_cart }}"
+                                    style="width: 60px; min-width: 50px; text-align: center; padding: 0; height: 38px; line-height: 38px;"
+                                    onkeypress="checkEnterKey(event, '{{ product.id }}')"
+                                    onblur="checkInputChange('{{ product.id }}', '{{ product.amount_in_cart }}')">
+                                <button class="btn btn-outline-dark ms-2" onclick="updateCartQuantity('{{ product.id }}', 1)">+</button>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-end mt-4 text-center mb-4">
+            <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
+        </div>
+    </div>
+{% endblock %}

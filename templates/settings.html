@@ -1,0 +1,80 @@
+{% extends 'layout.html' %}
+
+{% block title %}: Settings{% endblock %}
+
+{% block main %}
+    <div class="container mt-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <h1 class="mb-4">Account Settings</h1>
+
+        <form action="/settings" id="settingsForm" method="POST">
+            <div class="row">
+                <!-- First Name -->
+                <div class="col-md-6 mb-3">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" class="form-control" maxlength="50" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-md-6 mb-3">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" maxlength="50" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+            </div>
+
+            <!-- Address -->
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <input type="text" class="form-control" id="address" name="address" value="{{ user.address }}" required>
+            </div>
+
+            <!-- Credit Card -->
+            <div class="mb-3">
+                <label for="credit_card" class="form-label">Credit Card</label>
+                <input type="text" class="form-control" id="credit_card" name="credit_card" value="**** **** **** {{ last_four_digits }}" 
+                    pattern="(\d{4} \d{4} \d{4} \d{4})|(**** **** **** \d{4})" maxlength="19" required>
+                <small class="form-text text-muted">If you don't want to change credit card, leave it as it is. Credit Card format: 1234 5678 9101 1121.</small>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password to save changes" minlength="8" maxlength="20" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}" required>
+            </div>
+
+            <!-- New Password -->
+            <div class="mb-3">
+                <label for="password" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="new_password" name="new_password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                    title="Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number." placeholder="Enter new password if you want to change it">
+            </div>
+
+            <!-- Confirm New Password -->
+            <div class="mb-3">
+                <label for="password" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password" placeholder="Confirm new password">
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center mb-4">
+                <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+                <a href="/" class="btn btn-secondary ms-2">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

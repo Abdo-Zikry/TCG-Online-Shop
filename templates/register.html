@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}: Register{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <section class="py-5">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form action="/register" id="registerForm" method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <input type="text" class="form-control" maxlength="50" name="first_name" placeholder="First Name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <input type="text" class="form-control" maxlength="50" name="last_name" placeholder="Last Name" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <input type="email" class="form-control" name="email" placeholder="E-Mail" required>
+                </div>
+                <div class="mb-3">
+
+                </div>
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="address" placeholder="Adress" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="credit_card" placeholder="Credit Card Number" maxlength="19" pattern="\d{4} \d{4} \d{4} \d{4}" title="Enter a valid credit card number in the format: 1234 5678 9101 1121" required>
+                    <small class="form-text text-muted">Please enter your credit card number in the format: 1234 5678 9101 1121.</small>
+                </div>
+                <div class="mb-3">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" minlength="8" maxlength="20" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}" required>
+                    <small class="form-text text-muted">Your password must be at least 8 characters long and include a mix of letters, numbers, and special characters.</small>
+                </div>
+                <div class="mb-3">
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" minlength="8" required>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </div>
+            </form>
+        </section>
+    </div>
+{% endblock %}

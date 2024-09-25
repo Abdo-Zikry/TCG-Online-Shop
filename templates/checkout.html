@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block title %} Payment Confirmation {% endblock %}
+
+{% block main %}
+<div class="container mt-5">
+    <h2 class="mb-4">Payment Confirmation</h2>
+
+    <!-- User Information Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>User Information</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+            <p><strong>Shipping Address:</strong> {{ user.address }}</p>
+            <p><strong>Credit Card:</strong> **** **** **** {{ last_four_digits }}</p>
+            <p><strong>Total Amount:</strong> {{ total_price }}$</p>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Order Summary Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Order Summary</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group mb-3">
+                {% for product in products %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <div>
+                        <h5>{{ product.name }}</h5>
+                        <small class="text-muted">Quantity: {{ product.amount_in_cart }}</small>
+                    </div>
+                    <span>{{ product.price }}$</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+
+    <div class="d-flex justify-content-center mt-4 mb-4">
+        <!-- Confirm Payment -->
+        <form action="/checkout" method="post">
+            <button type="submit" class="btn btn-success me-3">Confirm Payment</button>
+        </form>
+    
+        <!-- Cancel Payment -->
+        <a href="/cart" class="btn btn-danger">Cancel</a>
+    </div>
+</div>
+{% endblock %}
