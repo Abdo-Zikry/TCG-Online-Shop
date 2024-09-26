@@ -2,8 +2,7 @@
 
 {% block title %}{% endblock %}
 
-{% block main %}
-    <!-- Header-->
+{% block header %}
     <header class="bg-dark py-5" id="changing_header">
         <div class="container px-4 px-lg-5 my-5">
             <div class="text-center text-white">
@@ -12,19 +11,11 @@
             </div>
         </div>
     </header>
+{% endblock %}
+
+{% block main %}    
     <!-- Section-->
-    <section class="py-5">
         <div class="container px-4 px-lg-5 mt-5">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
                 {% for product in display_products %}
                     <div class="col mb-5">
@@ -73,5 +64,4 @@
                 {% endfor %}
             </div>
         </div>
-    </section>
 {% endblock %}

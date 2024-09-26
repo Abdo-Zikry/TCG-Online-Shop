@@ -1,18 +1,15 @@
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
-from flask_session import Session
-from datetime import datetime
-from dotenv import load_dotenv
-from werkzeug.utils import escape
-
 import db, os, utilities
 
-app = Flask(__name__, static_folder='static')
+from flask import Flask, flash, jsonify, redirect, render_template, request, session
+from datetime import datetime
+from dotenv import load_dotenv
+from flask_session import Session
+from werkzeug.utils import escape
 
+app = Flask(__name__)
 
 load_dotenv()
-
 app.secret_key = os.getenv('SECRET_KEY')
-
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -21,13 +18,13 @@ Session(app)
 def index():
     products = db.get_all_products()
     products = utilities.sort_by_popularity(products, reverse=True)
-    display_products = products[:8]
+    products = products[:8]
 
     today = datetime.now().date()
-    for product in display_products:
+    for product in products:
         product['release_date'] = datetime.strptime(product['release_date'], '%Y-%m-%d')
 
-    return render_template('index.html', display_products=display_products, today=today)
+    return render_template('index.html', display_products=products, today=today)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
