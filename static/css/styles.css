@@ -137,7 +137,31 @@ main {
   animation: backgroundSlideshow 15s infinite;
   background-size: cover;
   background-position: center;
+  min-height: 180px; /* Default height for smaller screens */
+  display: flex;
+  align-items: center; /* Vertically center the content */
+  justify-content: center; /* Horizontally center the content */
+
 }
+
+@media (min-width: 768px) {
+  #changing_header {
+      min-height: 220px; /* Increase the height for medium screens (tablets) and up */
+  }
+}
+
+@media (min-width: 992px) {
+  #changing_header {
+      min-height: 250px; /* Even more height for large screens (desktops) */
+  }
+}
+
+@media (min-width: 1200px) {
+  #changing_header {
+      min-height: 300px; /* Maximum height for extra-large screens */
+  }
+}
+
 
 /* Chrome, Safari, Edge, Opera */
 .no-spinners::-webkit-outer-spin-button,

@@ -83,7 +83,7 @@ def logout():
     session.pop('product_data', None)
     session.pop('saved_url', None)
     session.pop('cart', None)
-    session.pop('products_in_cart', None)
+    session.pop('cart_count', None)
 
     return redirect('/')
 
@@ -252,9 +252,12 @@ def add_to_cart_ajax():
     session['cart'] = cart
 
     # Update the products in cart count
-    session['products_in_cart'] = sum(cart.values())
+    if 'cart_count' in session:
+        session['cart_count'] += 1
+    else:
+        session['cart_count'] = 1
 
-    return jsonify(success=True, products_in_cart=session['products_in_cart'])
+    return jsonify(success=True, cart_count=session['cart_count'])
 
 
 
@@ -304,9 +307,9 @@ def update_cart():
     session['cart'] = cart
 
     # Update total number of products in cart
-    session['products_in_cart'] = sum(cart.values())
+    session['cart_count'] = sum(cart.values())
 
-    return jsonify(success=True, products_in_cart=session['products_in_cart'])
+    return jsonify(success=True, cart_count=session['cart_count'])
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
@@ -351,7 +354,7 @@ def checkout():
             db.add_purchase(session['user_id'], product['id'], product['amount_in_cart'])
 
         session.pop('cart', None)
-        session.pop('products_in_cart', None)
+        session.pop('cart_count', None)
 
         flash('Your purchases were successful. You can check them in orders.', 'success')
         return redirect('/')

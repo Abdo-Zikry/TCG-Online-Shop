@@ -51,7 +51,7 @@ function addToCart(productId) {
     .then(data => {
         if (data.success) {
             // Update the cart count dynamically if the user is logged in
-            document.getElementById('cart-count').textContent = data.products_in_cart;
+            document.getElementById('cart-count').textContent = data.cart_count;
         } else {
             // Display a message if the user is not logged in
             alert(data.message);
@@ -91,7 +91,7 @@ function updateCartQuantity(productId, change) {
     .then(data => {
         if (data.success) {
             // Update the cart count displayed on the page
-            document.getElementById('cart-count').textContent = data.products_in_cart;
+            document.getElementById('cart-count').textContent = data.cart_count;
         } else {
             alert('Failed to update cart');
         }
@@ -131,7 +131,7 @@ function updateCart(productId) {
     .then(data => {
         if (data.success) {
             // Update the cart icon count
-            document.getElementById('cart-count').textContent = data.products_in_cart;
+            document.getElementById('cart-count').textContent = data.cart_count;
             quantityInput.setAttribute('data-original-quantity', newQuantity);
         } else {
             alert('Failed to update cart');
