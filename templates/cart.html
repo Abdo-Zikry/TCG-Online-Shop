@@ -18,12 +18,12 @@
                             <p class="card-text text-center">{{ product.price }}$</p>
                             <div class="button-group">
                                 <button class="btn btn-outline-dark me-2" onclick="updateCartQuantity('{{ product.id }}', -1)">-</button>
-                                <input type="number" id="quantity-{{ product.id }}" value="{{ product.amount_in_cart }}" 
+                                <input type="number" id="quantity-{{ product.id }}" value="{{ product.cart_count }}" 
                                     min="0" max="{{ product.amount }}" class="form-control text-center no-spinners"
-                                    data-original-quantity="{{ product.amount_in_cart }}"
+                                    data-original-quantity="{{ product.cart_count }}"
                                     style="width: 60px; min-width: 50px; text-align: center; padding: 0; height: 38px; line-height: 38px;"
                                     onkeypress="checkEnterKey(event, '{{ product.id }}')"
-                                    onblur="checkInputChange('{{ product.id }}', '{{ product.amount_in_cart }}')">
+                                    onblur="checkInputChange('{{ product.id }}', '{{ product.cart_count }}')">
                                 <button class="btn btn-outline-dark ms-2" onclick="updateCartQuantity('{{ product.id }}', 1)">+</button>
                             </div>                            
                         </div>
