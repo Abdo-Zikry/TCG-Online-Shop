@@ -159,3 +159,8 @@ function checkInputChange(productId, amountInCart) {
     }
 }
 
+
+window.addEventListener('unload', function () {
+    // Send a request to the backend to save the cart
+    navigator.sendBeacon('/save_cart');
+});

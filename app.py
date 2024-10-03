@@ -1,4 +1,4 @@
-import db, os, utilities
+import db, os, utilities, security
 
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from datetime import datetime
@@ -29,62 +29,50 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if 'user_id' in session:
+        flash('You are already logged in', 'danger')
         return redirect('/')
     if request.method == 'GET':
         return render_template('register.html')
     if request.method == 'POST':
-        user = dict()
-        user['first_name'] = escape(request.form.get('first_name'))
-        user['last_name'] = escape(request.form.get('last_name'))
-        user['email'] = escape(request.form.get('email'))
-        user['address'] = escape(request.form.get('address'))
-        user['credit_card'] = escape(request.form.get('credit_card'))
-        user['password'] = escape(request.form.get('password'))
-        user['confirm_password'] = escape(request.form.get('confirm_password'))
+        user = utilities.create_user(request.form)
         
-        if utilities.validate_registration(user):
+        if not security.valid_registration(user):
             return redirect('/register')
 
-        encrypted_credit_card = utilities.encrypt_credit_card(user['credit_card'])
-        hashed_password = utilities.hash_password(user['password'])
-        
-        user_id = utilities.generate_secure_id()
+        encrypted_credit_card = security.encrypt_credit_card(user['credit_card'])
+        hashed_password = security.hash_password(user['password'])
+        user_id = security.generate_secure_id()
+
         session['user_id'] = user_id
-        db.add_user(user_id, user['first_name'], user['last_name'], user['email'], user['address'], encrypted_credit_card, hashed_password)
-        flash("Registration is successful", "success")
+        db.add_user(user_id, user, encrypted_credit_card, hashed_password)
+        flash('Registration is successful', 'success')
         return redirect('/')
     
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     if 'user_id'in session:
+        flash('You are already logged in.', 'danger')
         return redirect('/')
     if request.method == 'GET':
         return render_template('login.html')
     if request.method == 'POST':
         email = escape(request.form.get('email'))
         password = escape(request.form.get('password'))
-        user = db.get_user_by_email(email)
-        if not user:
-            flash('There is no user with such email', 'warning')
-            return redirect('/login')
-        if not db.check_password(email, password):
-            flash('Password is not correct', 'warning')
-            return redirect('/login')
+        user_id = db.authenticate_user(email, password)
         
-        session['user_id'] = user['id']
-        flash('Log in is successful', 'success')
+        if not user_id:
+            return redirect('/login')
+        session['user_id'] = user_id
+        cart = db.retrieve_cart(user_id)
+        session['cart'] = cart
+        session['cart_count'] = sum(cart.values())
         return redirect('/')
         
     
 @app.route('/logout', methods = ['GET'])
 def logout():
-    session.pop('user_id', None)
-    session.pop('user_data', None)
-    session.pop('product_data', None)
-    session.pop('saved_url', None)
-    session.pop('cart', None)
-    session.pop('cart_count', None)
-
+    db.save_cart(session['cart'], session['user_id'])
+    session.clear()
     return redirect('/')
 
 @app.route('/settings', methods = ['GET', 'POST'])
@@ -95,7 +83,7 @@ def settings():
             return redirect('/')
         
         user = db.get_user_by_id(session['user_id'])
-        last_four_digits = utilities.decrypt_credit_card(user['credit_card'])[-4:]
+        last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
         return render_template('settings.html', user=user, last_four_digits=last_four_digits)
     
     if request.method == 'POST':
@@ -123,7 +111,7 @@ def settings():
         if utilities.is_credit_card_changed(credit_card):
             new['credit_card'] = credit_card
         else:
-            new['credit_card'] = utilities.decrypt_credit_card(user['credit_card'])
+            new['credit_card'] = security.decrypt_credit_card(user['credit_card'])
 
         new_password = escape(request.form.get('new_password'))
         if new_password:
@@ -191,7 +179,7 @@ def confirm_payment():
         return redirect(saved_url)
     
     user = db.get_user_by_id(session['user_id'])
-    last_four_digits = utilities.decrypt_credit_card(user['credit_card'])[-4:]
+    last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
 
     session['user_data'] = user
     session['product_data'] = product
@@ -228,7 +216,7 @@ def successful_purchase():
     product = session.get('product_data')
     saved_url = session.get('saved_url')
 
-    last_four_digits = utilities.decrypt_credit_card(user['credit_card'])[-4:]
+    last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
     
     return render_template('purchased.html', product=product, user=user, saved_url=saved_url, last_four_digits=last_four_digits)
 
@@ -281,7 +269,7 @@ def card():
         if cart:
             for product_id in cart.keys():
                 product = db.get_product_by_id(product_id)
-                product['amount_in_cart'] = cart[product_id]
+                product['cart_count'] = cart[product_id]
                 products.append(product)
         
 
@@ -327,7 +315,7 @@ def checkout():
     products = []
     for product_id in cart.keys():
         product = db.get_product_by_id(product_id)
-        product['amount_in_cart'] = cart[product_id]
+        product['cart_count'] = cart[product_id]
         products.append(product)
 
     user = db.get_user_by_id(session['user_id'])
@@ -335,23 +323,23 @@ def checkout():
     if request.method == 'GET':
         total_price = 0
         for product in products:
-            total_price += product['amount_in_cart'] * product['price']
+            total_price += product['cart_count'] * product['price']
 
-        last_four_digits = utilities.decrypt_credit_card(user['credit_card'])[-4:]
+        last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
 
         return render_template('checkout.html', products=products, user=user, total_price=total_price, last_four_digits=last_four_digits)
     
     if request.method == 'POST':
         for product in products:
-            if product['amount_in_cart'] < 0:
+            if product['cart_count'] < 0:
                 flash(f'You cannot request negative amount of {product['name']}.', 'danger')
                 return redirect('/cart')
-            if product['amount_in_cart'] > product['amount']:
+            if product['cart_count'] > product['amount']:
                 flash(f'Requested amount of {product['name']} is larger than what is in stock.', 'danger')
                 return redirect('/cart')
             
         for product in products:
-            db.add_purchase(session['user_id'], product['id'], product['amount_in_cart'])
+            db.add_purchase(session['user_id'], product['id'], product['cart_count'])
 
         session.pop('cart', None)
         session.pop('cart_count', None)
@@ -383,6 +371,18 @@ def search():
             product['release_date'] = datetime.strptime(product['release_date'], '%Y-%m-%d')
         
         return render_template('search.html', products=products, today=today)
+    
+@app.route('/save_cart', methods=['POST'])
+def save_cart():
+    if 'user_id' not in session:
+        return jsonify({'status': 'User not logged in!'}), 403
+
+    cart_data = session.get('cart')
+    user_id = session.get('user_id')
+    db.save_cart(cart_data, user_id)
+
+    return jsonify({'status': 'Cart saved successfully!'}), 200
+        
 
 
 if __name__ == '__main__':
