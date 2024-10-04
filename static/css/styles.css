@@ -189,6 +189,20 @@ main {
   align-items: center; /* Vertically center */
 }
 
+/* Increase font size for both texts */
+#navbarLabel {
+  font-size: 1.35rem; /* Adjust the size as needed */
+}
+
+#navbarLabel a {
+  text-decoration: none; /* Remove underline from the link */
+}
+
+#navbarLabel a:hover {
+  text-decoration: none; /* Ensure underline remains removed on hover */
+}
+
+
 
 
 hr {

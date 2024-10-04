@@ -164,3 +164,36 @@ window.addEventListener('unload', function () {
     // Send a request to the backend to save the cart
     navigator.sendBeacon('/save_cart');
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Get elements
+    const navbarLabel = document.getElementById('navbarLabel');
+    const shopNavbar = document.getElementById('shopNavbar');
+
+    // Add event listeners for collapse show/hide
+    shopNavbar.addEventListener('show.bs.collapse', function () {
+        navbarLabel.innerHTML = '<a href="/shop" class="text-light">Reset</a>';
+    });
+
+    shopNavbar.addEventListener('hide.bs.collapse', function () {
+        navbarLabel.textContent = 'Shop';
+    });
+});
+
+// Check if URL has any query parameters
+function hasQueryParams() {
+    return window.location.search.length > 0;
+}
+
+// On page load, check for query parameters and expand navbar if found
+document.addEventListener("DOMContentLoaded", function () {
+    const shopNavbar = document.getElementById('shopNavbar');
+
+    if (hasQueryParams()) {
+        const bsCollapse = new bootstrap.Collapse(shopNavbar, {
+            toggle: false // Prevent Bootstrap from automatically toggling
+        });
+        bsCollapse.show(); // Manually show the navbar
+    }
+});
+
