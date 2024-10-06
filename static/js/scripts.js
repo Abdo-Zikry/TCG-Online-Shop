@@ -6,36 +6,28 @@
 // This file is intentionally blank
 // Use this file to add JavaScript to your project
 document.addEventListener('DOMContentLoaded', function() {
-    var form = document.getElementById('registerForm');
-    
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            var password = document.getElementById('password').value;
-            var confirmPassword = document.getElementById('confirm_password').value;
+    // Function to validate password match for both forms
+    function validatePasswordMatch(formId, passwordId, confirmPasswordId) {
+        var form = document.getElementById(formId);
 
-            if (password !== confirmPassword) {
-                alert('Passwords do not match.');
-                event.preventDefault(); // Prevent form submission
-            }
-        });
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                var password = document.getElementById(passwordId).value;
+                var confirmPassword = document.getElementById(confirmPasswordId).value;
+
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match.');
+                    event.preventDefault(); // Prevent form submission
+                }
+            });
+        }
     }
+
+    // Validate password match for both registration form and settings form
+    validatePasswordMatch('registerForm', 'password', 'confirm_password');
+    validatePasswordMatch('settingsForm', 'new_password', 'confirm_new_password');
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    var form = document.getElementById('settingsForm');
-    
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            var password = document.getElementById('new_password').value;
-            var confirmPassword = document.getElementById('confirm_new_password').value;
-
-            if (password !== confirmPassword) {
-                alert('Passwords do not match.');
-                event.preventDefault(); // Prevent form submission
-            }
-        });
-    }
-});
 
 // scripts.js or your custom .js file
 

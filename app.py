@@ -58,7 +58,7 @@ def login():
     if request.method == 'POST':
         email = escape(request.form.get('email'))
         password = escape(request.form.get('password'))
-        user_id = db.authenticate_user(email, password)
+        user_id = db.authenticate_login(email, password)
         
         if not user_id:
             return redirect('/login')
@@ -93,42 +93,24 @@ def settings():
         
         user = db.get_user_by_id(session['user_id'])
         password = escape(request.form.get('password'))
-        if not db.check_password(user['email'], password):
+        if not db.check_password(user['id'], password):
             flash('You entered wrong password. All changes are discarded.', 'warning')
             return redirect('/settings')
         
-        new = dict()
-        new['first_name'] = escape(request.form.get('first_name'))
-        new['last_name'] = escape(request.form.get('last_name'))
-        new['email'] = escape(request.form.get('email'))
+        new = utilities.record_changes(request.form, user['id'], password)
         if new['email'] != user['email']:
-            if db.get_user_by_email(new['email']):
+            if db.check_email(new['email']):
                 flash('That email is already used', 'warning')
                 return redirect('/settings')
-        new['address'] = escape(request.form.get('address'))
 
-        credit_card = escape(request.form.get('credit_card'))
-        if utilities.is_credit_card_changed(credit_card):
-            new['credit_card'] = credit_card
-        else:
-            new['credit_card'] = security.decrypt_credit_card(user['credit_card'])
-
-        new_password = escape(request.form.get('new_password'))
-        if new_password:
-            new['password'] = new_password
-            new['confirm_password'] = escape(request.form.get('confirm_new_password'))
-        else:
-            new['password'] = password
-            new['confirm_password'] = password
-
-        if utilities.validate_new(new):
+        if not security.valid_changes(new):
             return redirect('/settings')
         
         db.update_user(new, session['user_id'])
         flash('Changes were updated successfully', 'success')
         return redirect('/')
 
-@app.route('/shop', methods = ['GET', 'POST'])
+@app.route('/shop', methods = ['GET'])
 def shop():
     selected_games = request.args.getlist('game')
     selected_type = request.args.get('type')

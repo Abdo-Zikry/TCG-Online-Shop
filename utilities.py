@@ -1,7 +1,7 @@
 from flask import flash, redirect
 from cryptography.fernet import Fernet
 from datetime import datetime, timedelta
-import bcrypt, binascii, db, os, re, sqlite3
+import bcrypt, binascii, db, os, re, sqlite3, security
 from werkzeug.utils import escape
 
 
@@ -21,32 +21,26 @@ def create_user(form):
     user['confirm_password'] = escape(form.get('confirm_password'))
     return user
 
-def validate_new(user):
-    if not NAME_REGEX.match(user['first_name']):
-        flash('First name can only contain letters and spaces.', 'warning')
-        return True
-    if len(str(user['first_name'])) > 50:
-        flash('First name cannot exceed 50 characters.', 'warning')
-        return True
-    if not NAME_REGEX.match(user['last_name']):
-        flash('Last name can only contain letters and spaces.', 'warning')
-        return True
-    if len(str(user['last_name'])) > 50:
-        flash('Last name cannot exceed 50 characters.', 'warning')
-        return True
-    if not re.match(EMAIL_REGEX, user['email']):
-        flash("Invalid email format. Please enter a valid email address.", "danger")
-        return True
-    if len(str(user['email'])) > 255:
-        flash('Your email is too long. Please enter a shorter one', 'warning')
-        return True
-    if not PASSWORD_REGEX.match(user['password']):
-        flash('Password must be 8-20 characters long, include at least one uppercase letter, one lowercase letter, and one number.', 'danger')
-        return True
-    if user['password'] != user['confirm_password']:
-        flash('Passwords do not match.', 'danger')
-        return True
-
+def record_changes(form, user_id, password):
+    user = db.get_user_by_id(user_id)
+    new = dict()
+    new['first_name'] = escape(form.get('first_name'))
+    new['last_name'] = escape(form.get('last_name'))
+    new['email'] = escape(form.get('email'))
+    new['address'] = escape(form.get('address'))
+    credit_card = escape(form.get('credit_card'))
+    if is_credit_card_changed(credit_card):
+        new['credit_card'] = credit_card
+    else:
+        new['credit_card'] = security.decrypt_credit_card(user['credit_card'])
+    new_password = escape(form.get('new_password'))
+    if new_password:
+        new['password'] = new_password
+        new['confirm_password'] = escape(form.get('confirm_new_password'))
+    else:
+        new['password'] = password
+        new['confirm_password'] = password
+    return new
 
 def is_credit_card_changed(credit_card):
     # Regular expression to match **** **** **** 5672 pattern

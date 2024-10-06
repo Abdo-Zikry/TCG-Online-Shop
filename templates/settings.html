@@ -10,60 +10,63 @@
             <div class="row">
                 <!-- First Name -->
                 <div class="col-md-6 mb-3">
-                    <label for="first_name" class="form-label">First Name</label>
-                    <input type="text" class="form-control" maxlength="50" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                    <label class="form-label" for="first_name">First Name</label>
+                    <input class="form-control" maxlength="50" name="first_name" pattern="[A-Za-z\s]+" required
+                        title="First name can only contain letters and spaces." type="text" value="{{ user.first_name }}">
                 </div>
 
                 <!-- Last Name -->
                 <div class="col-md-6 mb-3">
-                    <label for="last_name" class="form-label">Last Name</label>
-                    <input type="text" class="form-control" maxlength="50" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                    <label class="form-label" for="last_name">Last Name</label>
+                    <input class="form-control" maxlength="50" name="last_name" pattern="[A-Za-z\s]+" required
+                        title="First name can only contain letters and spaces." type="text" value="{{ user.last_name }}">
                 </div>
             </div>
 
             <!-- Email -->
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                <label class="form-label" for="email">Email</label>
+                <input class="form-control" name="email" required type="email" value="{{ user.email }}">
             </div>
 
             <!-- Address -->
             <div class="mb-3">
-                <label for="address" class="form-label">Address</label>
-                <input type="text" class="form-control" id="address" name="address" value="{{ user.address }}" required>
+                <label class="form-label" for="address">Address</label>
+                <input class="form-control" name="address" required type="text" value="{{ user.address }}">
             </div>
 
             <!-- Credit Card -->
             <div class="mb-3">
-                <label for="credit_card" class="form-label">Credit Card</label>
-                <input type="text" class="form-control" id="credit_card" name="credit_card" value="**** **** **** {{ last_four_digits }}" 
-                    pattern="(\d{4} \d{4} \d{4} \d{4})|(**** **** **** \d{4})" maxlength="19" required>
+                <label class="form-label" for="credit_card">Credit Card</label>
+                <input class="form-control" maxlength="19" name="credit_card" pattern="(\d{4} \d{4} \d{4} \d{4})|(**** **** **** \d{4})"
+                    required type="text" value="**** **** **** {{ last_four_digits }}">
                 <small class="form-text text-muted">If you don't want to change credit card, leave it as it is. Credit Card format: 1234 5678 9101 1121.</small>
             </div>
 
             <!-- Password -->
             <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password to save changes" minlength="8" maxlength="20" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}" required>
+                <label class="form-label" for="password">Password</label>
+                <input class="form-control" maxlength="20" minlength="8" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}"
+                    placeholder="Enter password to save changes" required type="password">
             </div>
 
             <!-- New Password -->
             <div class="mb-3">
-                <label for="password" class="form-label">New Password</label>
-                <input type="password" class="form-control" id="new_password" name="new_password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                    title="Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number." placeholder="Enter new password if you want to change it">
+                <label class="form-label" for="password">New Password</label>
+                <input class="form-control" id="new_password" name="new_password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" placeholder="Enter new password if you want to change it"
+                    title="Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number." type="password">
             </div>
 
             <!-- Confirm New Password -->
             <div class="mb-3">
-                <label for="password" class="form-label">New Password</label>
-                <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password" placeholder="Confirm new password">
+                <label class="form-label" for="password">New Password</label>
+                <input class="form-control" id="confirm_new_password" name="confirm_new_password" placeholder="Confirm new password" type="password">
             </div>
 
             <!-- Submit Button -->
-            <div class="text-center mb-4">
-                <button type="submit" class="btn btn-primary me-2">Save Changes</button>
-                <a href="/" class="btn btn-secondary ms-2">Cancel</a>
+            <div class="mb-4 text-center">
+                <button class="btn btn-primary me-2" type="submit">Save Changes</button>
+                <a class="btn btn-secondary ms-2" href="/">Cancel</a>
             </div>
         </form>
     </div>

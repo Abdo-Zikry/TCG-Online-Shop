@@ -1,6 +1,7 @@
 from flask import flash, redirect
 import bcrypt, sqlite3, utilities, security
 
+#functions that change the database
 def add_user(id, user, credit_card, password):
     connection = sqlite3.connect('database.db')
     cursor = connection.cursor()
@@ -8,46 +9,6 @@ def add_user(id, user, credit_card, password):
     cursor.execute(query, (id, user['first_name'], user['last_name'], user['email'], user['address'], credit_card, password))
     connection.commit()
     connection.close()
-
-def authenticate_user(email, password):
-    connection = sqlite3.connect('database.db')
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-    query = 'SELECT id, password FROM users WHERE email = ?'
-    cursor.execute(query, (email,))
-    user = dict(cursor.fetchone())
-    if not user:
-        connection.close()
-        flash('There exists no user with such email.', 'warning')
-        return None
-    connection.close()
-    if not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-        flash('Password is not correct.', 'warning')
-        return None
-    flash('Log in is successful', 'success')
-    return user['id']
-
-def get_user_by_email(email):
-    connection = sqlite3.connect('database.db')
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-    query = 'SELECT * FROM users WHERE email = ?'
-    cursor.execute(query, (email,))
-    user = cursor.fetchone()
-    if not user:
-        return None
-    connection.close()
-    return dict(user)
-
-def get_user_by_id(id):
-    connection = sqlite3.connect('database.db')
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-    query = 'SELECT * FROM users WHERE id = ?'
-    cursor.execute(query, (id,))
-    user = cursor.fetchone()
-    connection.close()
-    return dict(user)
 
 def update_user(user, user_id):
     user['password'] = security.hash_password(user['password'])
@@ -59,24 +20,47 @@ def update_user(user, user_id):
     connection.commit()
     connection.close()
 
-def check_email(email):
+def add_purchase(user_id, product_id, amount):
     connection = sqlite3.connect('database.db')
     cursor = connection.cursor()
-    query = 'SELECT * FROM users WHERE email = ?'
-    cursor.execute(query, (email,))
-    user = cursor.fetchone()
+    query = 'SELECT amount FROM products WHERE id = ?'
+    cursor.execute(query, (product_id,))
+    new_amount = cursor.fetchone()[0] - amount
+    query = 'UPDATE products SET amount = ? WHERE id = ?'
+    cursor.execute(query, (new_amount, product_id))
+    user = get_user_by_id(user_id)
+    last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
+    product = get_product_by_id(product_id)
+    query = 'INSERT INTO purchases (user_id, product_id, price, amount, shipping_address, credit_last_four) VALUES (?, ?, ?, ?, ?, ?)'
+    cursor.execute(query, (user_id, product_id, product['price'], amount, user['address'], last_four_digits))
+    connection.commit()
     connection.close()
-    return user
-    
-def check_password(email, password):
+
+def save_cart(cart, user_id):
+    if not cart:
+        cart = dict()
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+    query = 'DELETE FROM carts WHERE user_id = ?'
+    cursor.execute(query, (user_id,))
+    connection.commit()
+    for product_id in cart.keys():
+        query = 'INSERT INTO carts (user_id, product_id, amount) VALUES (?, ?, ?)'
+        cursor.execute(query, (user_id, product_id, cart[product_id]))
+    connection.commit()
+    connection.close()
+
+
+#functions that retrieve from the database
+def get_user_by_id(id):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
-    query = 'SELECT * FROM users WHERE email = ?'
-    cursor.execute(query, (email,))
+    query = 'SELECT * FROM users WHERE id = ?'
+    cursor.execute(query, (id,))
     user = dict(cursor.fetchone())
     connection.close()
-    return bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8'))
+    return user
 
 def get_product(product_name):
     connection = sqlite3.connect('database.db')
@@ -121,25 +105,6 @@ def select_products_by_games(games):
     connection.close()
     return products
             
-def add_purchase(user_id, product_id, amount):
-    connection = sqlite3.connect('database.db')
-    cursor = connection.cursor()
-    query = 'SELECT amount FROM products WHERE id = ?'
-    cursor.execute(query, (product_id,))
-    new_amount = cursor.fetchone()[0] - amount
-    query = 'UPDATE products SET amount = ? WHERE id = ?'
-    cursor.execute(query, (new_amount, product_id))
-    user = get_user_by_id(user_id)
-    last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
-    product = get_product_by_id(product_id)
-    query = 'INSERT INTO purchases (user_id, product_id, price, amount, shipping_address, credit_last_four) VALUES (?, ?, ?, ?, ?, ?)'
-    cursor.execute(query, (user_id, product_id, product['price'], amount, user['address'], last_four_digits))
-    connection.commit()
-    connection.close()
-
-
-
-
 def get_all_orders(user_id):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
@@ -167,20 +132,6 @@ def get_products_by_search(input):
     connection.close()
     return products
 
-def save_cart(cart, user_id):
-    if not cart:
-        cart = dict()
-    connection = sqlite3.connect('database.db')
-    cursor = connection.cursor()
-    query = 'DELETE FROM carts WHERE user_id = ?'
-    cursor.execute(query, (user_id,))
-    connection.commit()
-    for product_id in cart.keys():
-        query = 'INSERT INTO carts (user_id, product_id, amount) VALUES (?, ?, ?)'
-        cursor.execute(query, (user_id, product_id, cart[product_id]))
-    connection.commit()
-    connection.close()
-
 def retrieve_cart(user_id):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
@@ -193,3 +144,41 @@ def retrieve_cart(user_id):
     for item in cart_data:
         cart[item['product_id']] = item['amount']
     return cart
+
+def authenticate_login(email, password):
+    connection = sqlite3.connect('database.db')
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+    query = 'SELECT id FROM users WHERE email = ?'
+    cursor.execute(query, (email,))
+    user_id = cursor.fetchone()[0]
+    if not user_id:
+        connection.close()
+        flash('There exists no user with such email.', 'warning')
+        return None
+    connection.close()
+    if not check_password(user_id, password):
+        flash('Password is not correct.', 'warning')
+        return None
+    flash('Log in is successful', 'success')
+    return user_id
+
+
+#functions that check data
+def check_email(email):
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+    query = 'SELECT id FROM users WHERE email = ?'
+    cursor.execute(query, (email,))
+    result = cursor.fetchone()
+    connection.close()
+    return result
+    
+def check_password(user_id, password):
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+    query = 'SELECT password FROM users WHERE id = ?'
+    cursor.execute(query, (user_id,))
+    user_password = cursor.fetchone()[0]
+    connection.close()
+    return bcrypt.checkpw(password.encode('utf-8'), user_password.encode('utf-8'))
