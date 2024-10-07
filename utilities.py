@@ -50,14 +50,13 @@ def is_credit_card_changed(credit_card):
 
 
 def sort_by_popularity(products, reverse):
-    seven_days_ago = datetime.now() - timedelta(days=7)
-    seven_days_ago_str = seven_days_ago.strftime('%Y-%m-%d %H:%M:%S')
+    seven_days_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
 
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
     query = 'SELECT product_id, amount FROM purchases WHERE time >= ?'
-    cursor.execute(query, (seven_days_ago_str,))
+    cursor.execute(query, (seven_days_ago,))
     recent_purchases = [dict(row) for row in cursor.fetchall()]
     connection.close()
 
@@ -68,7 +67,7 @@ def sort_by_popularity(products, reverse):
         else:
             recent_purchases_amount[purchase['product_id']] = purchase['amount']
 
-    sorted_products = sorted(products, key=lambda product: recent_purchases_amount.get(product['id'], 0), reverse=reverse)
+    sorted_products = sorted(products, key=lambda p: recent_purchases_amount.get(p['id'], 0), reverse=reverse)
     return sorted_products
 
 

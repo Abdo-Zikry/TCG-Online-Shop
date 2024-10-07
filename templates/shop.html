@@ -5,63 +5,63 @@
 {% block shop_navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container px-4 px-lg-5">
-            <span class="navbar-text text-light d-lg-none" id="navbarLabel">Shop</span>
-            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#shopNavbar" aria-controls="shopNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-text d-lg-none text-light" id="navbarLabel">Shop</span>
+            <button aria-controls="shopNavbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler ms-auto" data-bs-target="#shopNavbar" data-bs-toggle="collapse" type="button">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="shopNavbar">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                <ul class="navbar-nav mb-2 mb-lg-0 me-auto ms-lg-4">
+                    <ul class="navbar-nav mb-2 mb-lg-0 me-auto ms-lg-4">
                         {% for game in ['Yu-Gi-Oh!', 'Digimon', 'Chaotic', 'Vanguard'] %}
                             <li class="nav-item">
                                 {# Determine if the game is selected or not #}
                                 {% if game in selected_games %}
                                     {# Game is currently selected; prepare URL to remove it from the filter #}
                                     {% set new_games = selected_games | reject('equalto', game) | list %}
-                                    <a href="{{ url_for('shop', game=new_games, type=selected_type, sort = sort, order = order) }}" class="nav-link active">
+                                    <a class="nav-link active" href="{{ url_for('shop', game=new_games, type=selected_type, sort = sort, order = order) }}">
                                         {{ game }}
                                     </a>
                                 {% else %}
                                     {# Game is not selected; prepare URL to add it to the filter #}
                                     {% set new_games = selected_games + [game] %}
-                                    <a href="{{ url_for('shop', game=new_games, type=selected_type, sort = sort, order = order) }}" class="nav-link">
+                                    <a class="nav-link" href="{{ url_for('shop', game=new_games, type=selected_type, sort = sort, order = order) }}">
                                         {{ game }}
                                     </a>
                                 {% endif %}
                             </li>
                         {% endfor %}
                     </ul>
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-5">
+                    <ul class="navbar-nav mb-2 mb-lg-0 me-auto ms-lg-5">
                         <li class="nav-item"></li>
                             {% if selected_type == 'booster' %}
-                                <a href="{{ url_for('shop', game=selected_games, type=None, sort = sort, order = order) }}" class="nav-link active">
+                                <a class="nav-link active" href="{{ url_for('shop', game=selected_games, type=None, sort = sort, order = order) }}">
                                     Booster Box
                                 </a>
                             {% else %}
-                                <a href="{{ url_for('shop', game=selected_games, type='booster', sort = sort, order = order) }}" class="nav-link">
+                                <a class="nav-link" href="{{ url_for('shop', game=selected_games, type='booster', sort = sort, order = order) }}">
                                     Booster Box
                                 </a>
                             {% endif %}
                         </li>
                         <li class="nav-item">
                             {% if selected_type == 'structure' %}
-                                <a href="{{ url_for('shop', game=selected_games, type=None, sort = sort, order = order) }}" class="nav-link active">
+                                <a class="nav-link active" href="{{ url_for('shop', game=selected_games, type=None, sort = sort, order = order) }}">
                                     Structure Deck
                                 </a>
                             {% else %}
-                                <a href="{{ url_for('shop', game=selected_games, type='structure', sort = sort, order = order) }}" class="nav-link">
+                                <a class="nav-link" href="{{ url_for('shop', game=selected_games, type='structure', sort = sort, order = order) }}">
                                     Structure Deck
                                 </a>
                             {% endif %}
                         </li>
                     </ul>
                 </ul>
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="sortDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" id="sortDropdown" role="button">
                             Sort By
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                        <ul aria-labelledby="sortDropdown" class="dropdown-menu">
                             {% if sort != 'alphabetical' %}
                                 <li><a class="dropdown-item {% if sort == 'popularity' %}active{% endif %}" href="{{ url_for('shop', game=selected_games, type=selected_type, sort='popularity', order=order) }}">Popularity</a></li>
                                 <li><a class="dropdown-item {% if sort == 'release_date' %}active{% endif %}" href="{{ url_for('shop', game=selected_games, type=selected_type, sort='release_date', order=order) }}">Release Date</a></li>
@@ -74,7 +74,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ url_for('shop', game=selected_games, type=selected_type, sort=sort, order='asc' if order == 'desc' else 'desc') }}" class="nav-link">
+                        <a class="nav-link" href="{{ url_for('shop', game=selected_games, type=selected_type, sort=sort, order='asc' if order == 'desc' else 'desc') }}">
                             {% if order == 'asc' %}
                                 Asc <i class="bi bi-arrow-up"></i>
                             {% else %}
@@ -96,7 +96,7 @@
                     {% for category, message in messages %}
                         <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                             {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
                         </div>
                     {% endfor %}
                 {% endif %}
@@ -106,55 +106,52 @@
 {% endblock %}
 
 {% block main %}
-        <div class="container px-4 px-lg-5">
-            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-                {% for product in products %}
-                    <div class="col mb-5">
-                        <div class="card h-100">
-                            <!-- Product image-->
-                            <a href="{{ url_for('product_details', product=product.name) }}">
-                                <img class="card-img-top" src="{{url_for('static', filename='products/' + product.image_file_name)}}" alt="..." 
-                                    style="width: 100%; height: 200px; object-fit: contain;"/>
-                            </a>
-                            {% if product.release_date.date() > today %}
-                                <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Pre-Order</div>
-                            {% endif %}
-                            <!-- Product details-->
-                            <div class="card-body p-4">
-                                <div class="text-center">
-                                    <!-- Product name-->
-                                    <h5 class="fw-bolder">{{product.image_file_name.split('.')[0]}}</h5>
-                                    <!-- Product price-->
-                                    {{product.price}}$
-                                </div>
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            {% for product in products %}
+                <div class="col mb-5">
+                    <div class="card h-100">
+                        <!-- Product image-->
+                        <a href="{{ url_for('product_details', product=product.name) }}">
+                            <img class="card-img-top" src="{{ url_for('static', filename='products/' + product.image_file_name) }}" alt="{{ product.name }}"
+                                style="width: 100%; height: 200px; object-fit: contain;"/>
+                        </a>
+                        {% if product.amount == 0 %}
+                            <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sold Out</div>
+                        {% elif product.release_date.date() > today %}
+                            <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Pre-Order</div>
+                        {% endif %}
+                        <!-- Product details-->
+                        <div class="card-body p-4">
+                            <div class="text-center">
+                                <!-- Product name-->
+                                <h5 class="fw-bolder">{{ product.image_file_name.split('.')[0] }}</h5>
+                                <!-- Product price-->
+                                {{ product.price }}$
                             </div>
-                            <!-- Product actions-->
-                            {% if product.amount > 0 %}
-                                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                    <form action="/confirm_payment" method="POST">
-                                        <input type="hidden" name="product_name" value="{{ product.name }}">
-                                        <input type="hidden" name="current_url" value="{{ request.url }}">
-                                        <div class="text-center">
-                                            <button type="submit" class="btn btn-dark mt-auto">Purchase Now</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                
-                                <div class="text-center">
-                                    <button class="btn btn-outline-dark mt-auto mb-4" onclick="addToCart('{{ product.id }}')">Add to Cart</button>
-                                </div>
-                                                               
-                            {% else %}
-                                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                    <div class="text-center">
-                                        <button class="btn btn-danger mt-auto" disabled>Sold Out</button>
-                                    </div>
-                                </div>
-                            {% endif %}
                         </div>
+                        <!-- Product actions-->
+                        {% if product.amount > 0 %}
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <form action="/purchase" method="POST">
+                                    <input type="hidden" name="product_name" value="{{ product.name }}">
+                                    <input type="hidden" name="current_url" value="{{ request.url }}">
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-dark mt-auto">Purchase Now</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent text-center">
+                                <button class="btn btn-outline-dark mt-auto mb-4" onclick="addToCart('{{ product.id }}')">Add to Cart</button>
+                            </div>
+                        {% else %}
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent text-center">
+                                <small class="text-muted">This product is currently unavailable.</small>
+                            </div>
+                        {% endif %}
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
-                
+    </div>
 {% endblock %}

@@ -68,7 +68,6 @@ def login():
         session['cart_count'] = sum(cart.values())
         return redirect('/')
         
-    
 @app.route('/logout', methods = ['GET'])
 def logout():
     db.save_cart(session['cart'], session['user_id'])
@@ -134,7 +133,6 @@ def shop():
     today = datetime.now().date()
     for product in products:
         product['release_date'] = datetime.strptime(product['release_date'], '%Y-%m-%d')
-
 
     return render_template('shop.html', products=products, today=today, selected_games=selected_games, selected_type=selected_type, sort=sort, order=order)
 

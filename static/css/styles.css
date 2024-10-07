@@ -202,7 +202,18 @@ main {
   text-decoration: none; /* Ensure underline remains removed on hover */
 }
 
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.8); /* Brighter white */
+}
 
+.navbar-dark .navbar-nav .nav-link.active {
+  color: #fff; /* Full white for active links */
+}
+
+/* Add hover effect for all links */
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: rgba(255, 255, 255, 0.9); /* Even brighter on hover */
+}
 
 
 hr {
