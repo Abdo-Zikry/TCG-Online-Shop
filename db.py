@@ -28,7 +28,7 @@ def add_purchase(user_id, product_id, amount):
     new_amount = cursor.fetchone()[0] - amount
     query = 'UPDATE products SET amount = ? WHERE id = ?'
     cursor.execute(query, (new_amount, product_id))
-    user = get_user_by_id(user_id)
+    user = get_user(user_id)
     last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
     product = get_product_by_id(product_id)
     query = 'INSERT INTO purchases (user_id, product_id, price, amount, shipping_address, credit_last_four) VALUES (?, ?, ?, ?, ?, ?)'
@@ -52,7 +52,7 @@ def save_cart(cart, user_id):
 
 
 #functions that retrieve from the database
-def get_user_by_id(id):
+def get_user(id):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
@@ -116,7 +116,7 @@ def select_products_by_games(games):
     connection.close()
     return products
             
-def get_all_orders(user_id):
+def get_orders(user_id):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
@@ -162,12 +162,13 @@ def authenticate_login(email, password):
     cursor = connection.cursor()
     query = 'SELECT id FROM users WHERE email = ?'
     cursor.execute(query, (email,))
-    user_id = cursor.fetchone()[0]
-    if not user_id:
+    result = cursor.fetchone()
+    if not result:
         connection.close()
         flash('There exists no user with such email.', 'warning')
         return None
     connection.close()
+    user_id = result[0]
     if not check_password(user_id, password):
         flash('Password is not correct.', 'warning')
         return None

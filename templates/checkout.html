@@ -4,7 +4,13 @@
 
 {% block main %}
 <div class="container">
-    <h2 class="mb-4">Payment Confirmation</h2>
+    <!-- Message Section (similar to the first page) -->
+    <div class="alert alert-warning text-center py-4">
+        <h1 class="display-4">💳 Confirm Your Payment</h1>
+        <p class="lead">Hello, <strong>{{ user.first_name }} {{ user.last_name }}</strong>!</p>
+        <hr>
+        <p>Please confirm your checkout below.</p>
+    </div>
 
     <!-- User Information Section -->
     <div class="card mb-4">
@@ -12,7 +18,6 @@
             <h4>User Information</h4>
         </div>
         <div class="card-body">
-            <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
             <p><strong>Shipping Address:</strong> {{ user.address }}</p>
             <p><strong>Credit Card:</strong> **** **** **** {{ last_four_digits }}</p>
             <p><strong>Total Amount:</strong> {{ total_price }}$</p>
@@ -41,15 +46,14 @@
         </div>
     </div>
     
-
     <div class="d-flex justify-content-center mt-4 mb-4">
         <!-- Confirm Payment -->
         <form action="/checkout" method="post">
-            <button type="submit" class="btn btn-success me-3">Confirm Payment</button>
+            <button type="submit" class="btn btn-success btn-dark me-3">Confirm Payment</button>
         </form>
     
         <!-- Cancel Payment -->
-        <a href="/cart" class="btn btn-danger">Cancel</a>
+        <a href="/cart" class="btn btn-outline-dark">Cancel</a>
     </div>
 </div>
 {% endblock %}

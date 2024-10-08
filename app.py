@@ -81,7 +81,7 @@ def settings():
             flash('You have to be logged in to access settings', 'danger')
             return redirect('/')
         
-        user = db.get_user_by_id(session['user_id'])
+        user = db.get_user(session['user_id'])
         last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
         return render_template('settings.html', user=user, last_four_digits=last_four_digits)
     
@@ -90,7 +90,7 @@ def settings():
             flash('You have to be logged in to access settings', 'danger')
             return redirect('/')
         
-        user = db.get_user_by_id(session['user_id'])
+        user = db.get_user(session['user_id'])
         password = escape(request.form.get('password'))
         if not db.check_password(user['id'], password):
             flash('You entered wrong password. All changes are discarded.', 'warning')
@@ -159,7 +159,7 @@ def confirm_purchase():
         flash('Cannot purchase, product is sold out', 'danger')
         return redirect(saved_url)
     
-    user = db.get_user_by_id(session['user_id'])
+    user = db.get_user(session['user_id'])
     last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
 
     session['product_data'] = product
@@ -207,37 +207,13 @@ def card():
     
     return render_template('cart.html', products=products)
     
-@app.route('/update_cart', methods=['POST'])
-def update_cart():
-    data = request.get_json()
-    product_id = data['product_id']
-    new_quantity = data['new_quantity']
-
-    # Get cart from session or initialize if not available
-    cart = session.get('cart', {})
-
-    if new_quantity == 0:
-        # If quantity is 0, remove the item from the cart
-        cart.pop(str(product_id), None)
-    else:
-        # Update the quantity for the specified product
-        cart[str(product_id)] = new_quantity
-
-    # Save the updated cart in session
-    session['cart'] = cart
-
-    # Update total number of products in cart
-    session['cart_count'] = sum(cart.values())
-
-    return jsonify(success=True, cart_count=session['cart_count'])
-
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     if 'user_id' not in session:
         flash('You have to be logged in to proceed to checkout.', 'danger')
         return redirect('/login')
     if 'cart' not in session:
-        flash('Nothing is in cart to checkout.', 'danger')
+        flash('Cart is empty. Nothing to checkout.', 'danger')
         return redirect('/')
     cart = session.get('cart')
     if sum(cart.values()) == 0:
@@ -250,7 +226,7 @@ def checkout():
         product['cart_count'] = cart[product_id]
         products.append(product)
 
-    user = db.get_user_by_id(session['user_id'])
+    user = db.get_user(session['user_id'])
 
     if request.method == 'GET':
         total_price = 0
@@ -267,7 +243,7 @@ def checkout():
                 flash(f'You cannot request negative amount of {product['name']}.', 'danger')
                 return redirect('/cart')
             if product['cart_count'] > product['amount']:
-                flash(f'Requested amount of {product['name']} is larger than what is in stock.', 'danger')
+                flash(f'Requested amount of {product['name']} is larger than what is in stock. There is only {product['amount']} left.', 'danger')
                 return redirect('/cart')
             
         for product in products:
@@ -276,10 +252,8 @@ def checkout():
         session.pop('cart', None)
         session.pop('cart_count', None)
 
-        flash('Your purchases were successful. You can check them in orders.', 'success')
+        flash('Your purchases were successful. You can check them in your orders page.', 'success')
         return redirect('/')
-
-
 
 @app.route('/orders', methods=['GET'])
 def orders():
@@ -287,7 +261,7 @@ def orders():
         flash('You have to be logged in to view orders', 'danger')
         return redirect('/login')
     
-    orders = db.get_all_orders(session['user_id'])
+    orders = db.get_orders(session['user_id'])
     return render_template('orders.html', orders=orders)
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -303,6 +277,10 @@ def search():
             product['release_date'] = datetime.strptime(product['release_date'], '%Y-%m-%d')
         
         return render_template('search.html', products=products, today=today)
+    
+
+
+
     
 @app.route('/save_cart', methods=['POST'])
 def save_cart():
@@ -344,6 +322,29 @@ def add_to_cart_ajax():
 
     return jsonify(success=True, cart_count=session['cart_count'])
 
+@app.route('/update_cart', methods=['POST'])
+def update_cart():
+    data = request.get_json()
+    product_id = data['product_id']
+    new_quantity = data['new_quantity']
+
+    # Get cart from session or initialize if not available
+    cart = session.get('cart', {})
+
+    if new_quantity == 0:
+        # If quantity is 0, remove the item from the cart
+        cart.pop(str(product_id), None)
+    else:
+        # Update the quantity for the specified product
+        cart[str(product_id)] = new_quantity
+
+    # Save the updated cart in session
+    session['cart'] = cart
+
+    # Update total number of products in cart
+    session['cart_count'] = sum(cart.values())
+
+    return jsonify(success=True, cart_count=session['cart_count'])
 
 
 if __name__ == '__main__':
