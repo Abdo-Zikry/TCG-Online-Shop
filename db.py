@@ -62,17 +62,28 @@ def get_user_by_id(id):
     connection.close()
     return user
 
-def get_product(product_name):
+def get_product(product_identifier):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
+    if product_identifier.isdigit():
+        query = 'SELECT * FROM products WHERE id = ?'
+        cursor.execute(query, (product_identifier,))
+        product = dict(cursor.fetchone())
+        connection.close()
+        return product
     query = 'SELECT * FROM products WHERE name = ?'
-    cursor.execute(query, (product_name,))
-    product = dict(cursor.fetchone())
+    cursor.execute(query, (product_identifier,))
+    result = cursor.fetchone()
+    if not result:
+        flash('There is no product with such name. Please contact us.', 'danger')
+        return None
+    product = dict(result)
     connection.close()
     return product
 
 def get_product_by_id(product_id):
+    
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()

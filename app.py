@@ -138,14 +138,13 @@ def shop():
 
 @app.route('/product_details', methods=['GET'])
 def product_details():
-    name = request.args.get('product')
+    name = escape(request.args.get('product'))
     product = db.get_product(name)
 
     return render_template('product_details.html', product=product)
 
-
-@app.route('/confirm_payment', methods=['POST'])
-def confirm_payment():
+@app.route('/confirm_purchase', methods=['POST'])
+def confirm_purchase():
     if 'user_id' not in session:
         flash('You have to be logged in to purchase products', 'warning')
         return redirect('/login')
@@ -153,6 +152,8 @@ def confirm_payment():
     product_name = escape(request.form.get('product_name'))
     product = db.get_product(product_name)
     saved_url = request.form.get('current_url')
+    if not product:
+        return redirect(saved_url)
 
     if product['amount'] == 0:
         flash('Cannot purchase, product is sold out', 'danger')
@@ -161,13 +162,11 @@ def confirm_payment():
     user = db.get_user_by_id(session['user_id'])
     last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
 
-    session['user_data'] = user
     session['product_data'] = product
     session['saved_url'] = saved_url
 
-    return render_template('confirm_payment.html', user=user, product=product, saved_url=saved_url, last_four_digits=last_four_digits)
+    return render_template('confirm_purchase.html', user=user, product=product, saved_url=saved_url, last_four_digits=last_four_digits)
     
-
 @app.route('/purchase', methods=['GET'])
 def purchase():
     if 'user_id' not in session:
@@ -182,78 +181,31 @@ def purchase():
         return redirect(saved_url)
     
     db.add_purchase(session['user_id'], product['id'], 1)
+    flash('Purchase was successful.', 'success')
+    return redirect(saved_url)    
 
-    return redirect('/successful_purchase')
-    
-
-@app.route('/successful_purchase', methods=['GET'])
-def successful_purchase():
-    if any(key not in session for key in ('user_data', 'product_data', 'saved_url')):
-        flash('You can only access this page after completing a purchase.', 'danger')
-        return redirect('/')
-
-    user = session.get('user_data')
-    product = session.get('product_data')
-    saved_url = session.get('saved_url')
-
-    last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
-    
-    return render_template('purchased.html', product=product, user=user, saved_url=saved_url, last_four_digits=last_four_digits)
-
-
-@app.route('/add_to_cart_ajax', methods=['POST'])
-def add_to_cart_ajax():
-    if 'user_id' not in session:
-        # User is not logged in, return an error message
-        return jsonify(success=False, message="You have to be logged in first.")
-
-    data = request.get_json()
-    product_id = data['product_id']
-
-    # Get cart from session or initialize it if it doesn't exist
-    cart = session.get('cart', {})
-    if product_id in cart:
-        cart[product_id] += 1
-    else:
-        cart[product_id] = 1
-
-    session['cart'] = cart
-
-    # Update the products in cart count
-    if 'cart_count' in session:
-        session['cart_count'] += 1
-    else:
-        session['cart_count'] = 1
-
-    return jsonify(success=True, cart_count=session['cart_count'])
-
-
-
-@app.route('/cart', methods=['GET', 'POST'])
+@app.route('/cart', methods=['GET'])
 def card():
     if 'user_id' not in session:
-        flash('You have to log in first.', 'warning')
-        return redirect('/')
+        flash('You have to be logged in to access cart.', 'warning')
+        return redirect('/login')
     
     if 'cart' not in session:
-        flash('Nothing in cart yet.', 'warning')
+        flash('Cart is empty. Add products to cart to access it.', 'warning')
         return redirect('/')
     
     cart = session.get('cart')
     if sum(cart.values()) == 0:
-        flash('Cart is now empty.', 'warning')
+        flash('Cart is empty. Add products to cart to access it.', 'warning')
         return redirect('/')
     
-    if request.method == 'GET':
-        products = []
-        if cart:
-            for product_id in cart.keys():
-                product = db.get_product_by_id(product_id)
-                product['cart_count'] = cart[product_id]
-                products.append(product)
-        
-
-        return render_template('cart.html', cart=cart, cart_products=products)
+    products = list()
+    for product_id in cart.keys():
+        product = db.get_product(product_id)
+        product['cart_count'] = cart[product_id]
+        products.append(product)
+    
+    return render_template('cart.html', products=products)
     
 @app.route('/update_cart', methods=['POST'])
 def update_cart():
@@ -294,7 +246,7 @@ def checkout():
     
     products = []
     for product_id in cart.keys():
-        product = db.get_product_by_id(product_id)
+        product = db.get_product(product_id)
         product['cart_count'] = cart[product_id]
         products.append(product)
 
@@ -363,6 +315,35 @@ def save_cart():
 
     return jsonify({'status': 'Cart saved successfully!'}), 200
         
+
+
+
+@app.route('/add_to_cart_ajax', methods=['POST'])
+def add_to_cart_ajax():
+    if 'user_id' not in session:
+        # User is not logged in, return an error message
+        return jsonify(success=False, message="You have to be logged in first.")
+
+    data = request.get_json()
+    product_id = data['product_id']
+
+    # Get cart from session or initialize it if it doesn't exist
+    cart = session.get('cart', {})
+    if product_id in cart:
+        cart[product_id] += 1
+    else:
+        cart[product_id] = 1
+
+    session['cart'] = cart
+
+    # Update the products in cart count
+    if 'cart_count' in session:
+        session['cart_count'] += 1
+    else:
+        session['cart_count'] = 1
+
+    return jsonify(success=True, cart_count=session['cart_count'])
+
 
 
 if __name__ == '__main__':
