@@ -66,7 +66,7 @@ def get_product(product_identifier):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
-    if product_identifier.isdigit():
+    if str(product_identifier).isdigit():
         query = 'SELECT * FROM products WHERE id = ?'
         cursor.execute(query, (product_identifier,))
         product = dict(cursor.fetchone())
@@ -128,7 +128,7 @@ def get_orders(user_id):
     connection.close()
     return orders
 
-def get_products_by_search(input):
+def search_products(input):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
@@ -153,7 +153,7 @@ def retrieve_cart(user_id):
     connection.close()
     cart = dict()
     for item in cart_data:
-        cart[item['product_id']] = item['amount']
+        cart[str(item['product_id'])] = item['amount']
     return cart
 
 def authenticate_login(email, password):

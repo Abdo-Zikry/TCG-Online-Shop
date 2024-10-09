@@ -269,38 +269,21 @@ def search():
     if request.method == 'GET':
         return render_template('search.html')
     if request.method == 'POST':
-        
         text = escape(request.form.get('search'))
-        products = db.get_products_by_search(text)
+        products = db.search_products(text)
+
         today = datetime.now().date()
         for product in products:
             product['release_date'] = datetime.strptime(product['release_date'], '%Y-%m-%d')
         
         return render_template('search.html', products=products, today=today)
     
-
-
-
-    
-@app.route('/save_cart', methods=['POST'])
-def save_cart():
-    if 'user_id' not in session:
-        return jsonify({'status': 'User not logged in!'}), 403
-
-    cart_data = session.get('cart')
-    user_id = session.get('user_id')
-    db.save_cart(cart_data, user_id)
-
-    return jsonify({'status': 'Cart saved successfully!'}), 200
-        
-
-
-
-@app.route('/add_to_cart_ajax', methods=['POST'])
-def add_to_cart_ajax():
+#Javascript target routes
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
     if 'user_id' not in session:
         # User is not logged in, return an error message
-        return jsonify(success=False, message="You have to be logged in first.")
+        return jsonify(success=False, message="You have to be logged in to add to cart.")
 
     data = request.get_json()
     product_id = data['product_id']
@@ -345,6 +328,24 @@ def update_cart():
     session['cart_count'] = sum(cart.values())
 
     return jsonify(success=True, cart_count=session['cart_count'])
+    
+
+
+
+
+
+@app.route('/save_cart', methods=['POST'])
+def save_cart():
+    if 'user_id' not in session:
+        return jsonify({'status': 'User not logged in!'}), 403
+
+    cart_data = session.get('cart')
+    user_id = session.get('user_id')
+    db.save_cart(cart_data, user_id)
+
+    return jsonify({'status': 'Cart saved successfully!'}), 200
+        
+
 
 
 if __name__ == '__main__':

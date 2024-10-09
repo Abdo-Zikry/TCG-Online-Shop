@@ -1,8 +1,7 @@
-/*!
-* Start Bootstrap - Shop Homepage v5.0.6 (https://startbootstrap.com/template/shop-homepage)
+/*! Start Bootstrap - Shop Homepage v5.0.6 (https://startbootstrap.com/template/shop-homepage)
 * Copyright 2013-2023 Start Bootstrap
-* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)
-*/
+* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)*/
+
 // This file is intentionally blank
 // Use this file to add JavaScript to your project
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,11 +27,8 @@ document.addEventListener('DOMContentLoaded', function() {
     validatePasswordMatch('settingsForm', 'new_password', 'confirm_new_password');
 });
 
-
-// scripts.js or your custom .js file
-
 function addToCart(productId) {
-    fetch('/add_to_cart_ajax', {
+    fetch('/add_to_cart', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -54,15 +50,20 @@ function addToCart(productId) {
     });
 }
 
-// JavaScript function to update the cart quantity
-function updateCartQuantity(productId, change) {
+// JavaScript function to adjust the cart quantity
+function adjustCartQuantity(productId, change) {
     // Get the input field for the product quantity
     const quantityInput = document.getElementById('quantity-' + productId);
     let newQuantity = parseInt(quantityInput.value) + change;
+    const maxStock = parseInt(quantityInput.max);
 
     // Ensure the quantity doesn't go below 0
     if (newQuantity < 0) {
         newQuantity = 0;
+    }
+
+    if (newQuantity > maxStock) {
+        newQuantity = maxStock;
     }
 
     // Update the input field with the new quantity
@@ -93,8 +94,8 @@ function updateCartQuantity(productId, change) {
     });
 }
 
-// Trigger update when clicking outside of the input box
-function updateCart(productId) {
+// JavaScript function to update the cart quantity manually
+function manualCartUpdate(productId) {
     const quantityInput = document.getElementById('quantity-' + productId);
     const newQuantity = parseInt(quantityInput.value);
     const maxStock = parseInt(quantityInput.max);
@@ -137,7 +138,7 @@ function updateCart(productId) {
 // Trigger update when the Enter key is pressed
 function checkEnterKey(event, productId) {
     if (event.key === 'Enter') {  
-        updateCart(productId);
+        manualCartUpdate(productId);
     }
 }
 
