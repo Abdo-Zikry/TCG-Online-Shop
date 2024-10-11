@@ -20,7 +20,7 @@
                     <input name="current_url" type="hidden" value="/shop">
                     <div class="d-flex gap-3 mb-4">
                         <button class="btn btn-dark btn-lg" type="submit">Purchase Now</button>
-                        <button class="btn btn-outline-dark btn-lg" onclick="addToCart('{{ product.id }}')" type="button">Add to Cart</button>
+                        <button class="btn btn-outline-dark btn-lg" onclick="addToCart('{{ product.id }}', '{{ product.amount }}')" type="button">Add to Cart</button>
                     </div>
                 </form>
                 <p class="mb-4">{{ product.description }}</p>

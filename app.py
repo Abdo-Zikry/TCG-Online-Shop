@@ -185,7 +185,7 @@ def purchase():
     return redirect(saved_url)    
 
 @app.route('/cart', methods=['GET'])
-def card():
+def cart():
     if 'user_id' not in session:
         flash('You have to be logged in to access cart.', 'warning')
         return redirect('/login')
@@ -287,11 +287,23 @@ def add_to_cart():
 
     data = request.get_json()
     product_id = data['product_id']
+    max_stock = data['max_stock']
 
     # Get cart from session or initialize it if it doesn't exist
     cart = session.get('cart', {})
     if product_id in cart:
-        cart[product_id] += 1
+        if cart[product_id] < int(max_stock):
+            cart[product_id] += 1
+        elif cart[product_id] == int(max_stock):
+            cart[product_id] = int(max_stock)
+            session['cart'] = cart
+            session['cart_count'] = sum(cart.values())
+            return jsonify(success=False, message="Sorry, you already have the maximum available stock of this product in your cart.")
+        else:
+            cart[product_id] = int(max_stock)
+            session['cart'] = cart
+            session['cart_count'] = sum(cart.values())
+            return jsonify(success=True, cart_count=session['cart_count'])
     else:
         cart[product_id] = 1
 

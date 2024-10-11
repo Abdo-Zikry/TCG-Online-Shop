@@ -27,13 +27,16 @@ document.addEventListener('DOMContentLoaded', function() {
     validatePasswordMatch('settingsForm', 'new_password', 'confirm_new_password');
 });
 
-function addToCart(productId) {
+function addToCart(productId, maxStock) {
     fetch('/add_to_cart', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 'product_id': productId })
+        body: JSON.stringify({ 
+            'product_id': productId,
+            'max_stock': maxStock
+         })
     })
     .then(response => response.json())
     .then(data => {
@@ -155,7 +158,9 @@ function checkInputChange(productId, amountInCart) {
 
 window.addEventListener('unload', function () {
     // Send a request to the backend to save the cart
+    if (isLoggedIn) {
     navigator.sendBeacon('/save_cart');
+    }
 });
 
 document.addEventListener('DOMContentLoaded', function () {
