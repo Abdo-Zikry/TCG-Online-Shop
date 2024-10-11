@@ -30,7 +30,7 @@ def add_purchase(user_id, product_id, amount):
     cursor.execute(query, (new_amount, product_id))
     user = get_user(user_id)
     last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
-    product = get_product_by_id(product_id)
+    product = get_product(product_id)
     query = 'INSERT INTO purchases (user_id, product_id, price, amount, shipping_address, credit_last_four) VALUES (?, ?, ?, ?, ?, ?)'
     cursor.execute(query, (user_id, product_id, product['price'], amount, user['address'], last_four_digits))
     connection.commit()
@@ -79,17 +79,6 @@ def get_product(product_identifier):
         flash('There is no product with such name. Please contact us.', 'danger')
         return None
     product = dict(result)
-    connection.close()
-    return product
-
-def get_product_by_id(product_id):
-    
-    connection = sqlite3.connect('database.db')
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-    query = 'SELECT * FROM products WHERE id = ?'
-    cursor.execute(query, (product_id,))
-    product = dict(cursor.fetchone())
     connection.close()
     return product
 

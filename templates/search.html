@@ -37,7 +37,7 @@
                         <!-- Product actions-->
                         {% if product.amount > 0 %}
                             <div class="card-footer bg-transparent border-top-0 p-4 pt-0">
-                                <form action="/confirm_purchase" method="POST">
+                                <form action="/purchase" method="POST">
                                     <input name="current_url" type="hidden" value="{{ request.url }}">
                                     <input name="product_name" type="hidden" value="{{ product.name }}">
                                     <div class="text-center">

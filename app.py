@@ -143,46 +143,42 @@ def product_details():
 
     return render_template('product_details.html', product=product)
 
-@app.route('/confirm_purchase', methods=['POST'])
-def confirm_purchase():
+@app.route('/purchase', methods=['GET', 'POST'])
+def purchase():
     if 'user_id' not in session:
         flash('You have to be logged in to purchase products', 'warning')
         return redirect('/login')
     
-    product_name = escape(request.form.get('product_name'))
-    product = db.get_product(product_name)
-    saved_url = request.form.get('current_url')
-    if not product:
-        return redirect(saved_url)
+    if request.method == 'POST':
+        product_name = escape(request.form.get('product_name'))
+        product = db.get_product(product_name)
+        saved_url = request.form.get('current_url')
+        if not product:
+            return redirect(saved_url)
 
-    if product['amount'] == 0:
-        flash('Cannot purchase, product is sold out', 'danger')
-        return redirect(saved_url)
-    
-    user = db.get_user(session['user_id'])
-    last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
+        if product['amount'] == 0:
+            flash('Cannot purchase, product is sold out', 'danger')
+            return redirect(saved_url)
+        
+        user = db.get_user(session['user_id'])
+        last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
 
-    session['product_data'] = product
-    session['saved_url'] = saved_url
+        session['product_data'] = product
+        session['saved_url'] = saved_url
 
-    return render_template('confirm_purchase.html', user=user, product=product, saved_url=saved_url, last_four_digits=last_four_digits)
-    
-@app.route('/purchase', methods=['GET'])
-def purchase():
-    if 'user_id' not in session:
-        flash('You have to be logged in to purchase products', 'danger')
-        return redirect('/login')
+        return render_template('purchase.html', user=user, product=product, saved_url=saved_url, last_four_digits=last_four_digits)
+                
+    if request.method == 'GET':
+        product = session.get('product_data')
+        saved_url = session.get('saved_url')
 
-    product = session.get('product_data')
-    saved_url = session.get('saved_url')
-
-    if product['amount'] == 0:
-        flash('Cannot purchase, product is sold out', 'danger')
-        return redirect(saved_url)
-    
-    db.add_purchase(session['user_id'], product['id'], 1)
-    flash('Purchase was successful.', 'success')
-    return redirect(saved_url)    
+        if product['amount'] == 0:
+            flash('Cannot purchase, product is sold out', 'danger')
+            return redirect(saved_url)
+        
+        db.add_purchase(session['user_id'], product['id'], 1)
+        flash('Purchase was successful.', 'success')
+        return redirect(saved_url)    
 
 @app.route('/cart', methods=['GET'])
 def cart():
@@ -341,11 +337,6 @@ def update_cart():
 
     return jsonify(success=True, cart_count=session['cart_count'])
     
-
-
-
-
-
 @app.route('/save_cart', methods=['POST'])
 def save_cart():
     if 'user_id' not in session:
@@ -357,8 +348,6 @@ def save_cart():
 
     return jsonify({'status': 'Cart saved successfully!'}), 200
         
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
