@@ -1,14 +1,7 @@
-from flask import flash, redirect
-from cryptography.fernet import Fernet
 from datetime import datetime, timedelta
-import bcrypt, binascii, db, os, re, sqlite3, security
 from werkzeug.utils import escape
 
-
-NAME_REGEX = re.compile(r'^[A-Za-z\s]+$')
-EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-CREDIT_CARD_REGEX = r'^\d{4} \d{4} \d{4} \d{4}$'
-PASSWORD_REGEX = re.compile(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$')
+import db, re, security, sqlite3
 
 def create_user(form):
     user = dict()
@@ -47,8 +40,6 @@ def is_credit_card_changed(credit_card):
     pattern = r"^\*\*\*\* \*\*\*\* \*\*\*\* \d{4}$"
     return not bool(re.match(pattern, credit_card))
     
-
-
 def sort_by_popularity(products, reverse):
     seven_days_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -69,5 +60,3 @@ def sort_by_popularity(products, reverse):
 
     sorted_products = sorted(products, key=lambda p: recent_purchases_amount.get(p['id'], 0), reverse=reverse)
     return sorted_products
-
-

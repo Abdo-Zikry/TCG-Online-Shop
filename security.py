@@ -1,7 +1,7 @@
-from flask import flash, session
 from cryptography.fernet import Fernet
+from flask import flash
 
-import re, db, binascii, os, bcrypt
+import bcrypt, binascii, db, os, re
 
 NAME_REGEX = re.compile(r'^[A-Za-z\s]+$')
 EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'

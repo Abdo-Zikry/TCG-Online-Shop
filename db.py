@@ -1,5 +1,5 @@
-from flask import flash, redirect
-import bcrypt, sqlite3, utilities, security
+from flask import flash
+import bcrypt, security, sqlite3
 
 #functions that change the database
 def add_user(id, user, credit_card, password):
@@ -52,6 +52,25 @@ def save_cart(cart, user_id):
 
 
 #functions that retrieve from the database
+def authenticate_login(email, password):
+    connection = sqlite3.connect('database.db')
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+    query = 'SELECT id FROM users WHERE email = ?'
+    cursor.execute(query, (email,))
+    result = cursor.fetchone()
+    if not result:
+        connection.close()
+        flash('There exists no user with such email.', 'warning')
+        return None
+    connection.close()
+    user_id = result[0]
+    if not check_password(user_id, password):
+        flash('Password is not correct.', 'warning')
+        return None
+    flash('Log in is successful', 'success')
+    return user_id
+
 def get_user(id):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
@@ -92,31 +111,6 @@ def get_all_products():
     connection.close()
     return products
 
-def select_products_by_games(games):
-    connection = sqlite3.connect('database.db')
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-    products = list()
-    query = 'SELECT * FROM products WHERE game = ?'
-    for game in games:
-        cursor.execute(query, (game,))
-        for row in cursor.fetchall():
-            products.append(dict(row))
-    connection.close()
-    return products
-            
-def get_orders(user_id):
-    connection = sqlite3.connect('database.db')
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-    query = '''SELECT pr.name as product_name, pr.image_file_name as product_image, pu.price, pu.shipping_address, pu.credit_last_four, pu.amount, pu.time
-        FROM purchases pu JOIN products pr ON pu.product_id = pr.id
-        WHERE pu.user_id = ? ORDER BY pu.time DESC'''
-    cursor.execute(query, (user_id,))
-    orders = [dict(row) for row in cursor.fetchall()]
-    connection.close()
-    return orders
-
 def search_products(input):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
@@ -132,6 +126,19 @@ def search_products(input):
     connection.close()
     return products
 
+def select_products_by_games(games):
+    connection = sqlite3.connect('database.db')
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+    products = list()
+    query = 'SELECT * FROM products WHERE game = ?'
+    for game in games:
+        cursor.execute(query, (game,))
+        for row in cursor.fetchall():
+            products.append(dict(row))
+    connection.close()
+    return products
+            
 def retrieve_cart(user_id):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
@@ -145,24 +152,17 @@ def retrieve_cart(user_id):
         cart[str(item['product_id'])] = item['amount']
     return cart
 
-def authenticate_login(email, password):
+def get_orders(user_id):
     connection = sqlite3.connect('database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
-    query = 'SELECT id FROM users WHERE email = ?'
-    cursor.execute(query, (email,))
-    result = cursor.fetchone()
-    if not result:
-        connection.close()
-        flash('There exists no user with such email.', 'warning')
-        return None
+    query = '''SELECT pr.name as product_name, pr.image_file_name as product_image, pu.price, pu.shipping_address, pu.credit_last_four, pu.amount, pu.time
+        FROM purchases pu JOIN products pr ON pu.product_id = pr.id
+        WHERE pu.user_id = ? ORDER BY pu.time DESC'''
+    cursor.execute(query, (user_id,))
+    orders = [dict(row) for row in cursor.fetchall()]
     connection.close()
-    user_id = result[0]
-    if not check_password(user_id, password):
-        flash('Password is not correct.', 'warning')
-        return None
-    flash('Log in is successful', 'success')
-    return user_id
+    return orders
 
 
 #functions that check data

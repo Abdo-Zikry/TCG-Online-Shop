@@ -138,13 +138,6 @@ function manualCartUpdate(productId) {
     });
 }
 
-// Trigger update when the Enter key is pressed
-function checkEnterKey(event, productId) {
-    if (event.key === 'Enter') {  
-        manualCartUpdate(productId);
-    }
-}
-
 function checkInputChange(productId, amountInCart) {
     const quantityInput = document.getElementById('quantity-' + productId);
     const originalQuantity = parseInt(quantityInput.getAttribute('data-original-quantity')); // Retrieve stored value
@@ -152,6 +145,13 @@ function checkInputChange(productId, amountInCart) {
 
     if (currentQuantity !== originalQuantity) {
         alert("Changes were not recorded, you have to click enter.");
+    }
+}
+
+// Trigger update when the Enter key is pressed
+function checkEnterKey(event, productId) {
+    if (event.key === 'Enter') {  
+        manualCartUpdate(productId);
     }
 }
 

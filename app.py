@@ -1,10 +1,11 @@
-import db, os, utilities, security
-
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from datetime import datetime
 from dotenv import load_dotenv
+from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.utils import escape
+
+import db, os, utilities, security
+
 
 app = Flask(__name__)
 
@@ -109,6 +110,20 @@ def settings():
         flash('Changes were updated successfully', 'success')
         return redirect('/')
 
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'GET':
+        return render_template('search.html')
+    if request.method == 'POST':
+        text = escape(request.form.get('search'))
+        products = db.search_products(text)
+
+        today = datetime.now().date()
+        for product in products:
+            product['release_date'] = datetime.strptime(product['release_date'], '%Y-%m-%d')
+        
+        return render_template('search.html', products=products, today=today)
+    
 @app.route('/shop', methods = ['GET'])
 def shop():
     selected_games = request.args.getlist('game')
@@ -260,20 +275,7 @@ def orders():
     orders = db.get_orders(session['user_id'])
     return render_template('orders.html', orders=orders)
 
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    if request.method == 'GET':
-        return render_template('search.html')
-    if request.method == 'POST':
-        text = escape(request.form.get('search'))
-        products = db.search_products(text)
 
-        today = datetime.now().date()
-        for product in products:
-            product['release_date'] = datetime.strptime(product['release_date'], '%Y-%m-%d')
-        
-        return render_template('search.html', products=products, today=today)
-    
 #Javascript target routes
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
