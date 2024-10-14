@@ -1,6 +1,7 @@
 from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
+from flask_wtf.csrf import CSRFProtect
 from flask_session import Session
 from werkzeug.utils import escape
 
@@ -14,6 +15,7 @@ app.secret_key = os.getenv('SECRET_KEY')
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+csrf = CSRFProtect(app)
 
 @app.route('/')
 def index():
@@ -285,20 +287,20 @@ def add_to_cart():
 
     data = request.get_json()
     product_id = data['product_id']
-    max_stock = data['max_stock']
+    max_stock = int(data['max_stock'])
 
     # Get cart from session or initialize it if it doesn't exist
     cart = session.get('cart', {})
     if product_id in cart:
-        if cart[product_id] < int(max_stock):
+        if cart[product_id] < max_stock:
             cart[product_id] += 1
-        elif cart[product_id] == int(max_stock):
-            cart[product_id] = int(max_stock)
+        elif cart[product_id] == max_stock:
+            cart[product_id] = max_stock
             session['cart'] = cart
             session['cart_count'] = sum(cart.values())
             return jsonify(success=False, message="Sorry, you already have the maximum available stock of this product in your cart.")
         else:
-            cart[product_id] = int(max_stock)
+            cart[product_id] = max_stock
             session['cart'] = cart
             session['cart_count'] = sum(cart.values())
             return jsonify(success=True, cart_count=session['cart_count'])

@@ -27,11 +27,16 @@ document.addEventListener('DOMContentLoaded', function() {
     validatePasswordMatch('settingsForm', 'new_password', 'confirm_new_password');
 });
 
+function getCSRFToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
 function addToCart(productId, maxStock) {
     fetch('/add_to_cart', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(), // Add the CSRF token to the request
         },
         body: JSON.stringify({ 
             'product_id': productId,
@@ -76,7 +81,8 @@ function adjustCartQuantity(productId, change) {
     fetch('/update_cart', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(), // Add the CSRF token to the request
         },
         body: JSON.stringify({
             'product_id': productId,
@@ -120,6 +126,7 @@ function manualCartUpdate(productId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(), // Add the CSRF token to the request
         },
         body: JSON.stringify({ 'product_id': productId, 'new_quantity': newQuantity })
     })
@@ -193,4 +200,3 @@ document.addEventListener("DOMContentLoaded", function () {
         bsCollapse.show(); // Manually show the navbar
     }
 });
-

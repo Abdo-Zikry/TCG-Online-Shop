@@ -5,6 +5,7 @@
 {% block main %}
     <div class="container">
             <form action="/login" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="mb-3">
                     <input class="form-control" name="email" placeholder="E-Mail" required type="email">
                 </div>

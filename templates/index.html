@@ -43,6 +43,7 @@
                             {% if product.amount > 0 %}
                                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                                     <form action="/purchase" method="POST">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="product_name" value="{{ product.name }}">
                                         <input type="hidden" name="current_url" value="{{ request.url }}">
                                         <div class="text-center">

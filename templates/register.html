@@ -5,6 +5,7 @@
 {% block main %}
     <div class="container">
             <form action="/register" id="registerForm" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <input class="form-control" maxlength="50" name="first_name" pattern="[A-Za-z\s]+"

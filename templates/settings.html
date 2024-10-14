@@ -7,6 +7,7 @@
         <h1 class="mb-4">Account Settings</h1>
 
         <form action="/settings" id="settingsForm" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="row">
                 <!-- First Name -->
                 <div class="col-md-6 mb-3">
