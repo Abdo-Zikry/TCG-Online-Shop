@@ -3,12 +3,14 @@ from flask import flash
 
 import bcrypt, binascii, db, os, re
 
+# Regex for each input pattern
 NAME_REGEX = re.compile(r'^[A-Za-z\s]+$')
 EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 CREDIT_CARD_REGEX = r'^\d{4} \d{4} \d{4} \d{4}$'
 PASSWORD_REGEX = re.compile(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$')
 
 def valid_registration(user):
+    # Check each regex and length
     if not NAME_REGEX.match(user['first_name']):
         flash('First name can only contain letters and spaces.', 'warning')
         return False
@@ -36,6 +38,8 @@ def valid_registration(user):
     if not PASSWORD_REGEX.match(user['password']):
         flash('Password must be 8-20 characters, with at least one uppercase, lowercase, and number.', 'danger')
         return False
+    
+    # Check whether both passwords match
     if user['password'] != user['confirm_password']:
         flash('Passwords do not match.', 'danger')
         return False
@@ -61,6 +65,7 @@ def decrypt_credit_card(encrypted_credit_card):
     return decrypted_credit_card.decode('utf-8')
 
 def valid_changes(new):
+    # Check each regex and length
     if not NAME_REGEX.match(new['first_name']):
         flash('First name can only contain letters and spaces.', 'warning')
         return False
@@ -82,6 +87,8 @@ def valid_changes(new):
     if not PASSWORD_REGEX.match(new['password']):
         flash('Password must be 8-20 characters long, include at least one uppercase letter, one lowercase letter, and one number.', 'danger')
         return False
+    
+    # Check whether both passwords match
     if new['password'] != new['confirm_password']:
         flash('Passwords do not match.', 'danger')
         return False

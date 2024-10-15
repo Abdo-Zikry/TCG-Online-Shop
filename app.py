@@ -284,15 +284,14 @@ def orders():
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     if 'user_id' not in session:
-        # User is not logged in, return an error message
         return jsonify(success=False, message="You have to be logged in to add to cart.")
 
     data = request.get_json()
     product_id = data['product_id']
     max_stock = int(data['max_stock'])
 
-    # Get cart from session or initialize it if it doesn't exist
     cart = session.get('cart', {})
+    # Check if cart amount is less than or equal to max stock and handle it
     if product_id in cart:
         if cart[product_id] < max_stock:
             cart[product_id] += 1
@@ -302,6 +301,7 @@ def add_to_cart():
             session['cart_count'] = sum(cart.values())
             return jsonify(success=False, message="Sorry, you already have the maximum available stock of this product in your cart.")
         else:
+            # If cart amount is larger than what's in stock update it to match max stock
             cart[product_id] = max_stock
             session['cart'] = cart
             session['cart_count'] = sum(cart.values())
@@ -311,7 +311,6 @@ def add_to_cart():
 
     session['cart'] = cart
 
-    # Update the products in cart count
     if 'cart_count' in session:
         session['cart_count'] += 1
     else:
@@ -325,20 +324,14 @@ def update_cart():
     product_id = data['product_id']
     new_quantity = data['new_quantity']
 
-    # Get cart from session or initialize if not available
     cart = session.get('cart', {})
 
     if new_quantity == 0:
-        # If quantity is 0, remove the item from the cart
         cart.pop(str(product_id), None)
     else:
-        # Update the quantity for the specified product
         cart[str(product_id)] = new_quantity
 
-    # Save the updated cart in session
     session['cart'] = cart
-
-    # Update total number of products in cart
     session['cart_count'] = sum(cart.values())
 
     return jsonify(success=True, cart_count=session['cart_count'])

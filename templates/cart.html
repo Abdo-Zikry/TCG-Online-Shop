@@ -27,7 +27,7 @@
                                     data-original-quantity="{{ product.cart_count }}"
                                     style="width: 60px; min-width: 50px; text-align: center; padding: 0; height: 38px; line-height: 38px;"
                                     onkeypress="checkEnterKey(event, '{{ product.id }}')"
-                                    onblur="checkInputChange('{{ product.id }}', '{{ product.cart_count }}')">
+                                    onblur="checkInputChange('{{ product.id }}')">
                                 <button class="btn btn-outline-dark ms-2" onclick="adjustCartQuantity('{{ product.id }}', 1)">+</button>
                             </div>                            
                         </div>

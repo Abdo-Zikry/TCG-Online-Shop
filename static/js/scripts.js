@@ -5,7 +5,7 @@
 // This file is intentionally blank
 // Use this file to add JavaScript to your project
 document.addEventListener('DOMContentLoaded', function() {
-    // Function to validate password match for both forms
+    // Function to validate password match for both register and settings forms
     function validatePasswordMatch(formId, passwordId, confirmPasswordId) {
         var form = document.getElementById(formId);
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (password !== confirmPassword) {
                     alert('Passwords do not match.');
-                    event.preventDefault(); // Prevent form submission
+                    event.preventDefault(); // Prevent submission
                 }
             });
         }
@@ -27,16 +27,18 @@ document.addEventListener('DOMContentLoaded', function() {
     validatePasswordMatch('settingsForm', 'new_password', 'confirm_new_password');
 });
 
+// Function to retrieve the CSRF token from the meta tag
 function getCSRFToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 }
 
+// JavaScript function to add a product to the cart
 function addToCart(productId, maxStock) {
     fetch('/add_to_cart', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(), // Add the CSRF token to the request
+            'X-CSRFToken': getCSRFToken(),
         },
         body: JSON.stringify({ 
             'product_id': productId,
@@ -46,10 +48,10 @@ function addToCart(productId, maxStock) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update the cart count dynamically if the user is logged in
+            // Update the cart count dynamically
             document.getElementById('cart-count').textContent = data.cart_count;
         } else {
-            // Display a message if the user is not logged in
+            // Display a message if a problem
             alert(data.message);
         }
     })
@@ -65,11 +67,10 @@ function adjustCartQuantity(productId, change) {
     let newQuantity = parseInt(quantityInput.value) + change;
     const maxStock = parseInt(quantityInput.max);
 
-    // Ensure the quantity doesn't go below 0
+    // Ensure the quantity doesn't go below 0 or above maximum
     if (newQuantity < 0) {
         newQuantity = 0;
     }
-
     if (newQuantity > maxStock) {
         newQuantity = maxStock;
     }
@@ -82,7 +83,7 @@ function adjustCartQuantity(productId, change) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(), // Add the CSRF token to the request
+            'X-CSRFToken': getCSRFToken(),
         },
         body: JSON.stringify({
             'product_id': productId,
@@ -105,6 +106,7 @@ function adjustCartQuantity(productId, change) {
 
 // JavaScript function to update the cart quantity manually
 function manualCartUpdate(productId) {
+    // Obtain the new quantity entered
     const quantityInput = document.getElementById('quantity-' + productId);
     const newQuantity = parseInt(quantityInput.value);
     const maxStock = parseInt(quantityInput.max);
@@ -115,18 +117,17 @@ function manualCartUpdate(productId) {
         quantityInput.value = 0;
         return;
     }
-
     if (newQuantity > maxStock) {
         alert(`Maximum stock available is ${maxStock}. Update was discarded.`);
-        quantityInput.value = maxStock;  // Set the input value to max stock
-        return;  // Prevent sending the request if it exceeds stock
+        quantityInput.value = maxStock;
+        return;
     }
 
     fetch('/update_cart', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(), // Add the CSRF token to the request
+            'X-CSRFToken': getCSRFToken(),
         },
         body: JSON.stringify({ 'product_id': productId, 'new_quantity': newQuantity })
     })
@@ -145,23 +146,26 @@ function manualCartUpdate(productId) {
     });
 }
 
-function checkInputChange(productId, amountInCart) {
+// Function to check if the product quantity input has changed without update
+function checkInputChange(productId) {
+    // Retrieve the new quantity input
     const quantityInput = document.getElementById('quantity-' + productId);
-    const originalQuantity = parseInt(quantityInput.getAttribute('data-original-quantity')); // Retrieve stored value
-    const currentQuantity = parseInt(quantityInput.value); // Current input value
+    const originalQuantity = parseInt(quantityInput.getAttribute('data-original-quantity'));
+    const currentQuantity = parseInt(quantityInput.value);
 
     if (currentQuantity !== originalQuantity) {
         alert("Changes were not recorded, you have to click enter.");
     }
 }
 
-// Trigger update when the Enter key is pressed
+// Function to handle updating the cart when the Enter key is pressed
 function checkEnterKey(event, productId) {
     if (event.key === 'Enter') {  
         manualCartUpdate(productId);
     }
 }
 
+// Function to save the cart when the page is closed
 window.addEventListener('unload', function () {
     // Send a request to the backend to save the cart
     if (isLoggedIn) {
@@ -169,6 +173,7 @@ window.addEventListener('unload', function () {
     }
 });
 
+// Function to dynamically update the navbar label when the collapse is shown/hidden
 document.addEventListener('DOMContentLoaded', function () {
     // Get elements
     const navbarLabel = document.getElementById('navbarLabel');
@@ -189,7 +194,7 @@ function hasQueryParams() {
     return window.location.search.length > 0;
 }
 
-// On page load, check for query parameters and expand navbar if found
+// On page load, expand navbar if query paremeters exist
 document.addEventListener("DOMContentLoaded", function () {
     const shopNavbar = document.getElementById('shopNavbar');
 
