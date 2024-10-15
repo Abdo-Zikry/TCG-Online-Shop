@@ -4,7 +4,6 @@
 
 {% block main %}
     <div class="container">
-        <!-- Product Details Section -->
         <div class="row">
             <!-- Product Image -->
             <div class="col-md-6 mb-4">
@@ -12,9 +11,10 @@
             </div>
             <!-- Product Information -->
             <div class="col-md-6">
+                <!-- Product name-->
                 <h1 class="display-5">{{ product.image_file_name.split('.')[0] }}</h1>
                 <p class="lead" style="font-weight: 500;">Price: <span class="text-muted">${{ product.price }}</span></p>
-                <!-- Purchase and Add to Cart Buttons -->
+                <!-- Product actions-->
                 <form action="/confirm_payment" class="mt-4" id="purchaseForm" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input name="product_name" type="hidden" value="{{ product.name }}">

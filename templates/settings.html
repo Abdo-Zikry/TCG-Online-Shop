@@ -5,66 +5,52 @@
 {% block main %}
     <div class="container">
         <h1 class="mb-4">Account Settings</h1>
-
+        <!-- Settings form-->
         <form action="/settings" id="settingsForm" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="row">
-                <!-- First Name -->
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="first_name">First Name</label>
                     <input class="form-control" maxlength="50" name="first_name" pattern="[A-Za-z\s]+" required
                         title="First name can only contain letters and spaces." type="text" value="{{ user.first_name }}">
                 </div>
-
-                <!-- Last Name -->
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="last_name">Last Name</label>
                     <input class="form-control" maxlength="50" name="last_name" pattern="[A-Za-z\s]+" required
                         title="First name can only contain letters and spaces." type="text" value="{{ user.last_name }}">
                 </div>
             </div>
-
-            <!-- Email -->
             <div class="mb-3">
                 <label class="form-label" for="email">Email</label>
                 <input class="form-control" name="email" required type="email" value="{{ user.email }}">
             </div>
-
-            <!-- Address -->
             <div class="mb-3">
                 <label class="form-label" for="address">Address</label>
                 <input class="form-control" name="address" required type="text" value="{{ user.address }}">
             </div>
-
-            <!-- Credit Card -->
             <div class="mb-3">
                 <label class="form-label" for="credit_card">Credit Card</label>
                 <input class="form-control" maxlength="19" name="credit_card" pattern="(\d{4} \d{4} \d{4} \d{4})|(**** **** **** \d{4})"
                     required type="text" value="**** **** **** {{ last_four_digits }}">
                 <small class="form-text text-muted">If you don't want to change credit card, leave it as it is. Credit Card format: 1234 5678 9101 1121.</small>
             </div>
-
-            <!-- Password -->
+            <!-- Old password to confirm settings-->
             <div class="mb-3">
                 <label class="form-label" for="password">Password</label>
                 <input class="form-control" maxlength="20" minlength="8" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}"
                     placeholder="Enter password to save changes" required type="password">
             </div>
-
             <!-- New Password -->
             <div class="mb-3">
                 <label class="form-label" for="password">New Password</label>
                 <input class="form-control" id="new_password" name="new_password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" placeholder="Enter new password if you want to change it"
                     title="Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, and a number." type="password">
             </div>
-
             <!-- Confirm New Password -->
             <div class="mb-3">
                 <label class="form-label" for="password">New Password</label>
                 <input class="form-control" id="confirm_new_password" name="confirm_new_password" placeholder="Confirm new password" type="password">
             </div>
-
-            <!-- Submit Button -->
             <div class="mb-4 text-center">
                 <button class="btn btn-primary me-2" type="submit">Save Changes</button>
                 <a class="btn btn-secondary ms-2" href="/">Cancel</a>

@@ -7,15 +7,19 @@
         <h1 class="mb-4">Shopping Cart</h1>
         <div class="row">
             {% for product in products %}
-                <div class="col-lg-3 col-md-6 mb-4"> <!-- Updated to fit 4 cards on large screens and 2 on medium screens -->
+                <div class="col-lg-3 col-md-6 mb-4">
                     <div class="card h-100">
+                        <!-- Product image-->
                         <a href="{{ url_for('product_details', product=product.name) }}">
                             <img class="card-img-top" src="{{url_for('static', filename='products/' + product.image_file_name)}}" alt="..." 
                                 style="width: 100%; height: 200px; object-fit: contain;"/>
                         </a>
+                        <!-- Product details-->
                         <div class="card-body">
-                            <h5 class="card-title text-center">{{ product.name }}</h5>
+                            <!-- Prpduct name-->
+                            <h5 class="card-title text-center">{{ product.image_file_name.split('.')[0] }}</h5>
                             <p class="card-text text-center">{{ product.price }}$</p>
+                            <!-- Product actions-->
                             <div class="button-group">
                                 <button class="btn btn-outline-dark me-2" onclick="adjustCartQuantity('{{ product.id }}', -1)">-</button>
                                 <input type="number" id="quantity-{{ product.id }}" value="{{ product.cart_count }}" 
@@ -31,7 +35,6 @@
                 </div>
             {% endfor %}
         </div>
-        
         <div class="text-end mt-4 text-center mb-4">
             <a href="/checkout" class="btn btn-primary btn-dark">Proceed to Checkout</a>
         </div>

@@ -7,7 +7,7 @@ from werkzeug.utils import escape
 
 import db, os, utilities, security
 
-
+#setting up the app and security
 app = Flask(__name__)
 
 load_dotenv()
@@ -46,8 +46,9 @@ def register():
         hashed_password = security.hash_password(user['password'])
         user_id = security.generate_secure_id()
 
-        session['user_id'] = user_id
         db.add_user(user_id, user, encrypted_credit_card, hashed_password)
+        session['user_id'] = user_id
+        
         flash('Registration is successful', 'success')
         return redirect('/')
     
@@ -79,20 +80,16 @@ def logout():
 
 @app.route('/settings', methods = ['GET', 'POST'])
 def settings():
-    if request.method == 'GET':
-        if 'user_id' not in session:
+    if 'user_id' not in session:
             flash('You have to be logged in to access settings', 'danger')
             return redirect('/')
-        
+
+    if request.method == 'GET':
         user = db.get_user(session['user_id'])
         last_four_digits = security.decrypt_credit_card(user['credit_card'])[-4:]
         return render_template('settings.html', user=user, last_four_digits=last_four_digits)
     
     if request.method == 'POST':
-        if 'user_id' not in session:
-            flash('You have to be logged in to access settings', 'danger')
-            return redirect('/')
-        
         user = db.get_user(session['user_id'])
         password = escape(request.form.get('password'))
         if not db.check_password(user['id'], password):
@@ -128,10 +125,13 @@ def search():
     
 @app.route('/shop', methods = ['GET'])
 def shop():
+    #retrieve filtering and sorting parameters
     selected_games = request.args.getlist('game')
     selected_type = request.args.get('type')
     sort = request.args.get('sort', 'popularity')
     order = request.args.get('order', 'desc')
+
+    #filtering prooducts
     if selected_games:
         products = db.select_products_by_games(selected_games)
     else:
@@ -139,6 +139,7 @@ def shop():
     if selected_type:
         products = [product for product in products if product['type'] in selected_type]
 
+    #sorting products
     reverse_order = (order == 'desc')
     if sort == 'popularity':
         products = utilities.sort_by_popularity(products, reverse=reverse_order)
@@ -170,9 +171,10 @@ def purchase():
         product_name = escape(request.form.get('product_name'))
         product = db.get_product(product_name)
         saved_url = request.form.get('current_url')
+        
         if not product:
+            flash('This product does not exist', 'danger')
             return redirect(saved_url)
-
         if product['amount'] == 0:
             flash('Cannot purchase, product is sold out', 'danger')
             return redirect(saved_url)

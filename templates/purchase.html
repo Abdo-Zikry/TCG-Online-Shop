@@ -4,7 +4,7 @@
 
 {% block main %}
     <div class="container">
-        <!-- Hero Section -->
+        <!-- Confirmation message-->
         <div class="alert alert-warning text-center py-4">
             <h1 class="display-4">💳 Confirm Your Payment</h1>
             <p class="lead">Hello, <strong>{{ user.first_name }} {{ user.last_name }}</strong>!</p>
@@ -33,13 +33,13 @@
             </div>
         </div>
 
-        <!-- Call to Action Buttons -->
+        <!-- Action Buttons -->
         <div class="d-flex justify-content-center flex-column flex-md-row align-items-center gap-3 mt-4">
             <a href="/purchase" class="btn btn-primary btn-dark btn-lg">Confirm Payment</a>
             <a href="{{ saved_url }}" class="btn btn-outline-secondary btn-lg">Continue Shopping</a>
         </div>        
 
-        <!-- Footer Note -->
+        <!-- Contact us-->
         <div class="mt-5 text-center">
             <p>If you have any questions, feel free to <a href="https://youtu.be/dQw4w9WgXcQ?si=Z1lj54sIJ8e-tAkG">contact us</a>.</p>
         </div>

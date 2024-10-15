@@ -61,6 +61,7 @@
                 {% block header %}{% endblock %}
                 <section class="py-5">
                     {% block flash %}
+                    <!-- Standard flash container-->
                     <div class="container">
                         {% with messages = get_flashed_messages(with_categories=true) %}
                             {% if messages %}

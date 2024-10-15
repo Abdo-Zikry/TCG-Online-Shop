@@ -3,18 +3,17 @@
 {% block title %}{% endblock %}
 
 {% block header %}
-<header class="py-5" id="changing_header">
-    <div class="container px-3 px-md-4 px-lg-5 mt-2">
-        <div class="text-center text-white">
-            <h1 class="display-4 fw-bolder">Where Card Masters Shop</h1>
+    <!-- Animated header-->
+    <header class="py-5" id="changing_header">
+        <div class="container px-3 px-md-4 px-lg-5 mt-2">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder">Where Card Masters Shop</h1>
+            </div>
         </div>
-    </div>
-</header>
-
+    </header>
 {% endblock %}
 
 {% block main %}    
-    <!-- Section-->
         <div class="container px-4 px-lg-5 mt-2">
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
                 {% for product in display_products %}
@@ -35,7 +34,6 @@
                                 <div class="text-center">
                                     <!-- Product name-->
                                     <h5 class="fw-bolder">{{ product.image_file_name.split('.')[0] }}</h5>
-                                    <!-- Product price-->
                                     {{ product.price }}$
                                 </div>
                             </div>
