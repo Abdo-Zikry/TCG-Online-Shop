@@ -133,16 +133,19 @@ C:/Users/USER/TCG-Online-Shop/
 
 ## Screenshots
 
+## Screenshots
+
 1. Homepage
-![Homepage](static/images/assets/README Images/Home.png)
-2. Shop page
-![Shop_page](static/images/assets/README Images/Home.png)
+![Homepage](static/images/assets/README%20Images/Home.png)
+2. Shop Page
+![Shop Page](static/images/assets/README%20Images/Shop.png)
 3. Product Page
-![Product_page](static/images/assets/README Images/Home.png)
+![Product Page](static/images/assets/README%20Images/Product.png) 
 4. Cart Page
-![Cart_page](static/images/assets/README Images/Home.png)
-4. Orders Page
-![Orders_page](static/images/assets/README Images/Home.png)
+![Cart Page](static/images/assets/README%20Images/Cart.png) 
+5. Orders Page
+![Orders Page](static/images/assets/README%20Images/Orders.png)  
+
 
 ## Future Enhancements
 
