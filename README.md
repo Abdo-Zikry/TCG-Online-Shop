@@ -53,22 +53,14 @@ This project was created for practice in web development, focusing on backend lo
    ```bash
    cd TCG-Online-Shop
    ```
-3. Install required Python packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
+3. Install required Python packages
+
 4. Set up environment variables in a `.env` file:
    ```env
    SECRET_KEY=<your_secret_key>
    CREDIT_CARD_KEY=<your_credit_card_key>
    ```
-5. Initialize the SQLite database:
-   ```bash
-   flask db init
-   flask db migrate
-   flask db upgrade
-   ```
-6. Run the Flask development server:
+5. Run the Flask development server:
    ```bash
    flask run
    ```
