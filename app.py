@@ -77,8 +77,8 @@ def logout():
     if 'user_id' not in session:
         flash('You have to be logged in to log out.', 'danger')
         return redirect('/login')
-    if 'cart' in session:
-        db.save_cart(session['cart'], session['user_id'])
+    
+    db.save_cart(session.get('cart'), session['user_id'])
     session.clear()
     return redirect('/')
 
